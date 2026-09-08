@@ -1,36 +1,44 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-
-        <title>{{ config('app.name', 'Laravel') }}</title>
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-            @include('layouts.navigation')
-
-            <!-- Page Heading -->
-            @if (isset($header))
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+<html lang="en" class="no-js">
+<head>
+    <title>{{ $title ?? 'Dashboard' }} | {{ config('app.name', 'Prophaze Dashboard') }}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link rel="shortcut icon" href="{{ asset('vendor/awesome-dashboard/favicon.png') }}" type="image/x-icon">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('vendor/awesome-dashboard/vendor/themify-icons/themify-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/awesome-dashboard/vendor/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/awesome-dashboard/css/theme.css') }}">
+    @stack('styles')
+</head>
+<body>
+    @include('partials.topbar')
+    <main class="u-main">
+        @include('partials.sidebar')
+        <div class="u-content">
+            <div class="u-body">
+                @isset($header)
+                    <div class="mb-5">
                         {{ $header }}
                     </div>
-                </header>
-            @endif
+                @endisset
 
-            <!-- Page Content -->
-            <main>
                 {{ $slot }}
-            </main>
+            </div>
+            @include('partials.footer')
         </div>
-    </body>
+    </main>
+    <script src="{{ asset('vendor/awesome-dashboard/vendor/jquery/dist/jquery.min.js') }}"></script>
+    <script src="{{ asset('vendor/awesome-dashboard/vendor/jquery-migrate/jquery-migrate.min.js') }}"></script>
+    <script src="{{ asset('vendor/awesome-dashboard/vendor/popper.js/dist/umd/popper.min.js') }}"></script>
+    <script src="{{ asset('vendor/awesome-dashboard/vendor/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('vendor/awesome-dashboard/vendor/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js') }}"></script>
+    <script src="{{ asset('vendor/awesome-dashboard/vendor/chart.js/dist/Chart.min.js') }}"></script>
+    <script src="{{ asset('vendor/awesome-dashboard/vendor/chartjs-plugin-style/dist/chartjs-plugin-style.min.js') }}"></script>
+    <script src="{{ asset('vendor/awesome-dashboard/js/sidebar-nav.js') }}"></script>
+    <script src="{{ asset('vendor/awesome-dashboard/js/main.js') }}"></script>
+    @stack('scripts')
+</body>
 </html>
