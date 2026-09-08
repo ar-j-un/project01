@@ -9,46 +9,56 @@
 
         <nav class="u-sidebar-nav">
             <ul class="u-sidebar-nav-menu u-sidebar-nav-menu--top-level">
-                <li class="u-sidebar-nav-menu__item">
-                    <a class="u-sidebar-nav-menu__link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ url('/') }}">
-                        <span class="ti-dashboard u-sidebar-nav-menu__item-icon"></span>
-                        <span class="u-sidebar-nav-menu__item-title">Dashboard</span>
-                    </a>
-                </li>
-                <li class="u-sidebar-nav-menu__divider"></li>
-                <li class="u-sidebar-nav-menu__item">
-                    <a class="u-sidebar-nav-menu__link" href="#" data-target="#menuItemAccountPages">
-                        <span class="ti-layers-alt u-sidebar-nav-menu__item-icon"></span>
-                        <span class="u-sidebar-nav-menu__item-title">Account Pages</span>
-                        <span class="ti-angle-down u-sidebar-nav-menu__item-arrow"></span>
-                    </a>
-                    <ul id="menuItemAccountPages" class="u-sidebar-nav-menu u-sidebar-nav-menu--second-level" style="display: none;">
-                        <li class="u-sidebar-nav-menu__item">
-                            <a class="u-sidebar-nav-menu__link" href="{{ url('/account/profile') }}">
-                                <span class="u-sidebar-nav-menu__item-icon">P</span>
-                                <span class="u-sidebar-nav-menu__item-title">Profile</span>
+                @auth
+                    <!-- Dashboard -->
+                    <li class="u-sidebar-nav-menu__item">
+                        <a class="u-sidebar-nav-menu__link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
+                            <span class="ti-dashboard u-sidebar-nav-menu__item-icon"></span>
+                            <span class="u-sidebar-nav-menu__item-title">Dashboard</span>
+                        </a>
+                    </li>
+
+                    <li class="u-sidebar-nav-menu__divider"></li>
+
+                    <!-- Account -->
+                    <li class="u-sidebar-nav-menu__item">
+                        <a class="u-sidebar-nav-menu__link {{ request()->routeIs('profile.edit') ? 'active' : '' }}" href="{{ route('profile.edit') }}">
+                            <span class="ti-user u-sidebar-nav-menu__item-icon"></span>
+                            <span class="u-sidebar-nav-menu__item-title">Profile</span>
+                        </a>
+                    </li>
+
+                    <li class="u-sidebar-nav-menu__item">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <a class="u-sidebar-nav-menu__link" href="{{ route('logout') }}"
+                               onclick="event.preventDefault(); this.closest('form').submit();">
+                                <span class="ti-power-off u-sidebar-nav-menu__item-icon"></span>
+                                <span class="u-sidebar-nav-menu__item-title">Sign Out</span>
                             </a>
-                        </li>
-                        <li class="u-sidebar-nav-menu__item">
-                            <a class="u-sidebar-nav-menu__link" href="{{ Route::has('register') ? route('register') : url('/register') }}">
-                                <span class="u-sidebar-nav-menu__item-icon">S</span>
-                                <span class="u-sidebar-nav-menu__item-title">Sign Up</span>
-                            </a>
-                        </li>
-                        <li class="u-sidebar-nav-menu__item">
-                            <a class="u-sidebar-nav-menu__link" href="{{ Route::has('login') ? route('login') : url('/login') }}">
-                                <span class="u-sidebar-nav-menu__item-icon">S</span>
-                                <span class="u-sidebar-nav-menu__item-title">Sign In</span>
-                            </a>
-                        </li>
-                        <li class="u-sidebar-nav-menu__item">
-                            <a class="u-sidebar-nav-menu__link" href="{{ url('/password/recover') }}">
-                                <span class="u-sidebar-nav-menu__item-icon">R</span>
-                                <span class="u-sidebar-nav-menu__item-title">Recover Password</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
+                        </form>
+                    </li>
+                @else
+                    <!-- Guest -->
+                    <li class="u-sidebar-nav-menu__item">
+                        <a class="u-sidebar-nav-menu__link {{ request()->routeIs('login') ? 'active' : '' }}" href="{{ route('login') }}">
+                            <span class="ti-lock u-sidebar-nav-menu__item-icon"></span>
+                            <span class="u-sidebar-nav-menu__item-title">Sign In</span>
+                        </a>
+                    </li>
+                    <li class="u-sidebar-nav-menu__item">
+                        <a class="u-sidebar-nav-menu__link {{ request()->routeIs('register') ? 'active' : '' }}" href="{{ route('register') }}">
+                            <span class="ti-user u-sidebar-nav-menu__item-icon"></span>
+                            <span class="u-sidebar-nav-menu__item-title">Sign Up</span>
+                        </a>
+                    </li>
+                    <li class="u-sidebar-nav-menu__item">
+                        <a class="u-sidebar-nav-menu__link {{ request()->routeIs('password.request') ? 'active' : '' }}" href="{{ route('password.request') }}">
+                            <span class="ti-key u-sidebar-nav-menu__item-icon"></span>
+                            <span class="u-sidebar-nav-menu__item-title">Recover Password</span>
+                        </a>
+                    </li>
+                @endauth
             </ul>
         </nav>
     </div>
