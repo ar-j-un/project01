@@ -36,29 +36,39 @@
         </div>
 
         <div class="u-header-section u-header-section--profile">
-            <div class="u-header-dropdown dropdown">
-                <a class="link-muted d-flex align-items-center" href="#" role="button" id="userProfileInvoker" aria-haspopup="true" aria-expanded="false"
-                   data-toggle="dropdown"
-                   data-offset="0">
-                    <img class="u-header-avatar img-fluid rounded-circle mr-md-3" src="{{ asset('vendor/awesome-dashboard/img-temp/avatars/img1.jpg') }}" alt="User Profile">
-                    <span class="text-dark d-none d-md-inline-flex align-items-center">
-                        {{ auth()->user()->name ?? 'Guest' }}
-                        <span class="ti-angle-down text-muted ml-4"></span>
-                    </span>
-                </a>
+            @auth
+                <div class="u-header-dropdown dropdown">
+                    <a class="link-muted d-flex align-items-center" href="#" role="button" id="userProfileInvoker" aria-haspopup="true" aria-expanded="false"
+                       data-toggle="dropdown"
+                       data-offset="0">
+                        <img class="u-header-avatar img-fluid rounded-circle mr-md-3" src="{{ asset('vendor/awesome-dashboard/img-temp/avatars/img1.jpg') }}" alt="User Profile">
+                        <span class="text-dark d-none d-md-inline-flex align-items-center">
+                            {{ auth()->user()->name }}
+                            <span class="ti-angle-down text-muted ml-4"></span>
+                        </span>
+                    </a>
 
-                <div class="u-header-dropdown__menu dropdown-menu dropdown-menu-right" aria-labelledby="userProfileInvoker" style="width: 260px;">
-                    <div class="card p-3">
-                        <div class="card-body p-0">
-                            <ul class="list-unstyled mb-0">
-                                <li class="mb-3"><a class="link-dark" href="#">View Profile</a></li>
-                                <li class="mb-3"><a class="link-dark" href="#">Settings</a></li>
-                                <li><a class="link-dark" href="#">Sign Out</a></li>
-                            </ul>
+                    <div class="u-header-dropdown__menu dropdown-menu dropdown-menu-right" aria-labelledby="userProfileInvoker" style="width: 260px;">
+                        <div class="card p-3">
+                            <div class="card-body p-0">
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-3"><a class="link-dark" href="{{ route('profile.edit') }}">View Profile</a></li>
+                                    <li class="mb-3"><a class="link-dark" href="{{ route('profile.edit') }}">Settings</a></li>
+                                    <li>
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit" class="link-dark btn btn-link p-0 border-0">Sign Out</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @else
+                <a class="text-dark font-weight-semi-bold mr-3" href="{{ route('login') }}">Sign In</a>
+                <a class="btn btn-primary btn-sm text-uppercase" href="{{ route('register') }}">Sign Up</a>
+            @endauth
         </div>
     </div>
 </header>
