@@ -34,7 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
     Route::post('/documents', [DocumentController::class, 'store'])->name('documents.store');
     Route::post('/documents/{document}/files', [DocumentFileCountroller::class, 'store'])->name('document-files.store');
-
+    Route::patch('/documents/{document}/files/{documentFile}', [DocumentFileCountroller::class, 'update'])->name('document-files.update');
 });
 
 
