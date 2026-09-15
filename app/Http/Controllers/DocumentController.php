@@ -36,9 +36,10 @@ class DocumentController extends Controller
         //
     }
 
-    public function update(Request $request, Document $document)
+    public function update(StoreDocumentRequest $request, Document $document)
     {
-        //
+        $document->update($request->validated());
+        return redirect()->route("documents.index")->with("success","Document updated successfully");
     }
 
     public function destroy(Document $document)
