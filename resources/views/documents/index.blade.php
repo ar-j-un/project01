@@ -88,7 +88,37 @@
                                             <span class="btn-icon ti-download mr-2"></span>
                                             Download
                                         </a>
+                                        <button type="button" class="btn btn-primary btn-circle btn-with-icon btn-sm ml-2"
+                                            data-toggle="collapse" data-target="#addFileEditRow-{{ $file->id }}" aria-expanded="false"
+                                            aria-controls="addFileEditRow-{{ $file->id }}" title="Edit File">
+                                            <span class="btn-icon ti-pencil-alt"></span>
+                                        </button>
                                     </div>
+                                    <div id="addFileEditRow-{{ $file->id }}" class="collapse mt-3">
+                                    <form action="{{ route('document-files.update', [$document, $file]) }}" method="POST"
+                                        enctype="multipart/form-data">
+                                        @method('PATCH')
+                                        @csrf
+                                        <div class="form-row align-items-end">
+                                            <div class="col-md-4 mb-2 mb-md-0">
+                                                <label class="small text-muted mb-1">File Name</label>
+                                                <input type="text" name="file_name" class="form-control form-control-sm"
+                                                    value="{{ $file->file_name }}" placeholder="e.g. Invoice January">
+                                            </div>
+                                            <div class="col-md-5 mb-2 mb-md-0">
+                                                <label class="small text-muted mb-1">File</label>
+                                                <input type="file" name="file" class="form-control-file">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button type="submit"
+                                                    class="btn btn-block btn-sm btn-primary btn-with-icon">
+                                                    <span class="btn-icon ti-upload mr-2"></span>
+                                                    Update
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
                                 @empty
                                     <p class="text-muted mb-0" id="noFilesText-{{ $document->id }}">No files uploaded yet.</p>
                                 @endforelse
@@ -117,7 +147,6 @@
                                         </div>
                                     </form>
                                 </div>
-
                             </div>
                         </div>
                     </div>
