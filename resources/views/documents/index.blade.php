@@ -56,11 +56,18 @@
                                 </span>
                             </h4>
 
+                            <div>
                             <button type="button" class="btn btn-primary btn-circle btn-with-icon btn-sm"
                                 data-toggle="collapse" data-target="#addFileRow-{{ $document->id }}" aria-expanded="false"
                                 aria-controls="addFileRow-{{ $document->id }}" title="Add File">
                                 <span class="btn-icon ti-plus"></span>
                             </button>
+                            <button type="button" class="btn btn-primary btn-circle btn-with-icon btn-sm ml-2"
+                                data-toggle="collapse" data-target="#addDocumentEditRow-{{ $document->id }}" aria-expanded="false"
+                                aria-controls="addDocumentEditRow-{{ $document->id }}" title="Edit Document">
+                                <span class="btn-icon ti-pencil-alt"></span>
+                            </button>
+                            </div>
                         </div>
 
                         <div id="collapse-{{ $document->id }}" class="collapse"
@@ -142,6 +149,26 @@
                                                     class="btn btn-block btn-sm btn-primary btn-with-icon">
                                                     <span class="btn-icon ti-upload mr-2"></span>
                                                     Upload
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div id="addDocumentEditRow-{{ $document->id }}" class="collapse mt-3">
+                                    <form action="{{ route('document.update', $document) }}" method="POST">
+                                        @method('PATCH')
+                                        @csrf
+                                        <div class="form-row align-items-end">
+                                            <div class="col-md-4 mb-2 mb-md-0">
+                                                <label class="small text-muted mb-1">Document Name</label>
+                                                <input type="text" name="name" class="form-control form-control-sm"
+                                                    value="{{ $document->name }}">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button type="submit"
+                                                    class="btn btn-block btn-sm btn-primary btn-with-icon">
+                                                    <span class="btn-icon ti-upload mr-2"></span>
+                                                    Update
                                                 </button>
                                             </div>
                                         </div>
