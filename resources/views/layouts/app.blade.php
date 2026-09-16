@@ -46,6 +46,7 @@
         src="{{ asset('vendor/awesome-dashboard/vendor/chartjs-plugin-style/dist/chartjs-plugin-style.min.js') }}"></script>
     <script src="{{ asset('vendor/awesome-dashboard/js/sidebar-nav.js') }}"></script>
     <script src="{{ asset('vendor/awesome-dashboard/js/main.js') }}"></script>
+    <script src="{{ asset('js/custom.js') }}"></script>
     @stack('scripts')
 </body>
 
