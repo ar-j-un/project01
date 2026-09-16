@@ -13,6 +13,7 @@
     <link rel="stylesheet"
         href="{{ asset('vendor/awesome-dashboard/vendor/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css') }}">
     <link rel="stylesheet" href="{{ asset('vendor/awesome-dashboard/css/theme.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
     @stack('styles')
 </head>
 
