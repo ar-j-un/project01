@@ -36,6 +36,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/documents/{document}', [DocumentController::class, 'update'])->name('document.update');
     Route::post('/documents/{document}/files', [DocumentFileCountroller::class, 'store'])->name('document-files.store');
     Route::patch('/documents/{document}/files/{documentFile}', [DocumentFileCountroller::class, 'update'])->name('document-files.update');
+    Route::delete('/documents/files/{documentFile}', [DocumentFileCountroller::class, 'destroy'])->name('document-files.destroy');
 });
 
 
