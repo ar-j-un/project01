@@ -118,7 +118,22 @@
                                             </div>
                                             <div class="col-md-5 mb-2 mb-md-0">
                                                 <label class="small text-muted mb-1">File</label>
-                                                <input type="file" name="file" class="form-control-file">
+
+                                                <div class="custom-file custom-file-sm">
+                                                    <input type="file"
+                                                        name="file"
+                                                        id="fileInput-{{ $document->id }}"
+                                                        class="custom-file-input @error('file') is-invalid @enderror"
+                                                        onchange="$(this).siblings('.custom-file-label').text(this.files[0] ? this.files[0].name : 'Choose file');">
+
+                                                    <label class="custom-file-label" for="fileInput-{{ $document->id }}" id="fileInputLabel-{{ $document->id }}">
+                                                        Choose file
+                                                    </label>
+                                                </div>
+
+                                                @error('file')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                             <div class="col-md-3">
                                                 <button type="submit"
@@ -173,7 +188,22 @@
                                             </div>
                                             <div class="col-md-5 mb-2 mb-md-0">
                                                 <label class="small text-muted mb-1">File</label>
-                                                <input type="file" name="file" class="form-control-file">
+
+                                                <div class="custom-file custom-file-sm">
+                                                    <input type="file"
+                                                        name="file"
+                                                        id="fileInput-{{ $document->id }}"
+                                                        class="custom-file-input @error('file') is-invalid @enderror"
+                                                        onchange="$(this).siblings('.custom-file-label').text(this.files[0] ? this.files[0].name : 'Choose file');">
+
+                                                    <label class="custom-file-label" for="fileInput-{{ $document->id }}" id="fileInputLabel-{{ $document->id }}">
+                                                        Choose file
+                                                    </label>
+                                                </div>
+
+                                                @error('file')
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
                                             </div>
                                             <div class="col-md-3">
                                                 <button type="submit"
@@ -215,4 +245,26 @@
 
         </div>
     </div>
+@push('styles')
+<style>
+.custom-file-sm,
+.custom-file-sm .custom-file-input,
+.custom-file-sm .custom-file-label {
+    height: calc(1.4em + 0.5rem + 4px);
+}
+
+.custom-file-sm .custom-file-label {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.custom-file-sm .custom-file-label::after {
+    height: calc(1.5em + 0.5rem);
+    padding: 0.25rem 0.5rem;
+    line-height: 1.5;
+    font-size: 0.875rem;
+}
+</style>
+@endpush
 </x-app-layout>
