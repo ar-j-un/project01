@@ -100,6 +100,10 @@
                                             aria-controls="addFileEditRow-{{ $file->id }}" title="Edit File">
                                             <span class="btn-icon ti-pencil-alt"></span>
                                         </button>
+                                        <button type="button" class="btn btn-danger btn-circle btn-with-icon btn-sm ml-2"
+                                            data-toggle="modal" data-target="#deleteFileModal-{{ $file->id }}" title="Delete File">
+                                            <span class="btn-icon ti-trash"></span>
+                                        </button>
                                     </div>
                                     <div id="addFileEditRow-{{ $file->id }}" class="collapse mt-3">
                                     <form action="{{ route('document-files.update', [$document, $file]) }}" method="POST"
@@ -126,6 +130,33 @@
                                         </div>
                                     </form>
                                 </div>
+                                @push('modals')
+                                <div class="modal fade" id="deleteFileModal-{{ $file->id }}" tabindex="-1" role="dialog"
+                                    aria-labelledby="deleteFileModalLabel-{{ $file->id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteFileModalLabel-{{ $file->id }}">Delete File</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Are you sure you want to delete <strong>{{ $file->file_name }}</strong>?
+                                                This action cannot be undone.
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                <form action="{{ route('document-files.destroy', $file) }}" method="POST" class="d-inline">
+                                                    @method('DELETE')
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endpush
                                 @empty
                                     <p class="text-muted mb-0" id="noFilesText-{{ $document->id }}">No files uploaded yet.</p>
                                 @endforelse
