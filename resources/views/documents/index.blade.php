@@ -58,13 +58,15 @@
 
                             <div>
                             <button type="button" class="btn btn-primary btn-circle btn-with-icon btn-sm"
-                                data-toggle="collapse" data-target="#addFileRow-{{ $document->id }}" aria-expanded="false"
-                                aria-controls="addFileRow-{{ $document->id }}" title="Add File">
+                                data-toggle="collapse" data-target="#addFileRow-{{ $document->id }}" 
+                                data-parent-collapse="#collapse-{{ $document->id }}"
+                                aria-expanded="false" aria-controls="addFileRow-{{ $document->id }}" title="Add File">
                                 <span class="btn-icon ti-plus"></span>
                             </button>
                             <button type="button" class="btn btn-primary btn-circle btn-with-icon btn-sm ml-2"
-                                data-toggle="collapse" data-target="#addDocumentEditRow-{{ $document->id }}" aria-expanded="false"
-                                aria-controls="addDocumentEditRow-{{ $document->id }}" title="Edit Document">
+                                data-toggle="collapse" data-target="#addDocumentEditRow-{{ $document->id }}" 
+                                data-parent-collapse="#collapse-{{ $document->id }}"
+                                aria-expanded="false" aria-controls="addDocumentEditRow-{{ $document->id }}" title="Edit Document">
                                 <span class="btn-icon ti-pencil-alt"></span>
                             </button>
                             </div>
