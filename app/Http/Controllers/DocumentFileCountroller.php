@@ -67,6 +67,14 @@ class DocumentFileCountroller extends Controller
     }
     public function destroy(DocumentFile $documentFile)
     {
-        //
+        abort_unless($documentFile->document->user_id === request()->user()->id, 403);
+
+        if ($documentFile->file_path) {
+            Storage::disk('public')->delete($documentFile->file_path);
+        }
+
+        $documentFile->delete();
+
+        return redirect()->route('documents.index')->with('success', 'File successfully deleted.');
     }
 }
