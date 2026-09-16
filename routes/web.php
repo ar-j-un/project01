@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\DocumentController;
-use App\Http\Controllers\DocumentFileCountroller;
+use App\Http\Controllers\DocumentFileController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -34,9 +34,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
     Route::post('/documents', [DocumentController::class, 'store'])->name('documents.store');
     Route::patch('/documents/{document}', [DocumentController::class, 'update'])->name('document.update');
-    Route::post('/documents/{document}/files', [DocumentFileCountroller::class, 'store'])->name('document-files.store');
-    Route::patch('/documents/{document}/files/{documentFile}', [DocumentFileCountroller::class, 'update'])->name('document-files.update');
-    Route::delete('/documents/files/{documentFile}', [DocumentFileCountroller::class, 'destroy'])->name('document-files.destroy');
+    Route::post('/documents/{document}/files', [DocumentFileController::class, 'store'])->name('document-files.store');
+    Route::patch('/documents/{document}/files/{documentFile}', [DocumentFileController::class, 'update'])->name('document-files.update');
+    Route::delete('/documents/files/{documentFile}', [DocumentFileController::class, 'destroy'])->name('document-files.destroy');
 });
 
 

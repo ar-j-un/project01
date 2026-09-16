@@ -9,7 +9,7 @@ use App\Models\DocumentFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class DocumentFileCountroller extends Controller
+class DocumentFileController extends Controller
 {
     public function index()
     {
