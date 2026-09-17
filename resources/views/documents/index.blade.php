@@ -58,9 +58,7 @@
 
                             <div>
                             <button type="button" class="btn btn-primary btn-circle btn-with-icon btn-sm"
-                                data-toggle="collapse" data-target="#addFileRow-{{ $document->id }}" 
-                                data-parent-collapse="#collapse-{{ $document->id }}"
-                                aria-expanded="false" aria-controls="addFileRow-{{ $document->id }}" title="Add File">
+                                data-toggle="modal" data-target="#addFileModal-{{ $document->id }}" title="Add File">
                                 <span class="btn-icon ti-plus"></span>
                             </button>
                             <button type="button" class="btn btn-primary btn-circle btn-with-icon btn-sm ml-2"
@@ -178,45 +176,60 @@
                                     <p class="text-muted mb-0" id="noFilesText-{{ $document->id }}">No files uploaded yet.</p>
                                 @endforelse
 
-                                <div id="addFileRow-{{ $document->id }}" class="collapse mt-3">
-                                    <form action="{{ route('document-files.store', $document) }}" method="POST"
-                                        enctype="multipart/form-data">
-                                        @csrf
-                                        <div class="form-row align-items-end">
-                                            <div class="col-md-4 mb-2 mb-md-0">
-                                                <label class="small text-muted mb-1">File Name</label>
-                                                <input type="text" name="file_name" class="form-control form-control-sm"
-                                                    placeholder="e.g. Invoice January">
-                                            </div>
-                                            <div class="col-md-5 mb-2 mb-md-0">
-                                                <label class="small text-muted mb-1">File</label>
-
-                                                <div class="custom-file custom-file-sm">
-                                                    <input type="file"
-                                                        name="file"
-                                                        id="fileInput-{{ $document->id }}"
-                                                        class="custom-file-input @error('file') is-invalid @enderror"
-                                                        onchange="$(this).siblings('.custom-file-label').text(this.files[0] ? this.files[0].name : 'Choose file');">
-
-                                                    <label class="custom-file-label" for="fileInput-{{ $document->id }}" id="fileInputLabel-{{ $document->id }}">
-                                                        Choose file
-                                                    </label>
-                                                </div>
-
-                                                @error('file')
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                            <div class="col-md-3">
-                                                <button type="submit"
-                                                    class="btn btn-block btn-sm btn-primary btn-with-icon">
-                                                    <span class="btn-icon ti-upload mr-2"></span>
-                                                    Upload
+                                @push('modals')
+                                <div class="modal fade" id="addFileModal-{{ $document->id }}" tabindex="-1" role="dialog"
+                                    aria-labelledby="addFileModalLabel-{{ $document->id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="addFileModalLabel-{{ $document->id }}">Add File</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
                                                 </button>
                                             </div>
+                                            <div class="modal-body">
+                                                <form action="{{ route('document-files.store', $document) }}" method="POST"
+                                                    enctype="multipart/form-data">
+                                                    @csrf
+                                                    <div class="form-row align-items-end">
+                                                        <div class="col-md-4 mb-2 mb-md-0">
+                                                            <label class="small text-muted mb-1">File Name</label>
+                                                            <input type="text" name="file_name" class="form-control form-control-sm"
+                                                                placeholder="e.g. Invoice January">
+                                                        </div>
+                                                        <div class="col-md-5 mb-2 mb-md-0">
+                                                            <label class="small text-muted mb-1">File</label>
+
+                                                            <div class="custom-file custom-file-sm">
+                                                                <input type="file"
+                                                                    name="file"
+                                                                    id="addFileModalInput-{{ $document->id }}"
+                                                                    class="custom-file-input @error('file') is-invalid @enderror"
+                                                                    onchange="$(this).siblings('.custom-file-label').text(this.files[0] ? this.files[0].name : 'Choose file');">
+
+                                                                <label class="custom-file-label" for="fileInput-{{ $document->id }}" id="fileInputLabel-{{ $document->id }}">
+                                                                    Choose file
+                                                                </label>
+                                                            </div>
+
+                                                            @error('file')
+                                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                            @enderror
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <button type="submit"
+                                                                class="btn btn-block btn-sm btn-primary btn-with-icon">
+                                                                <span class="btn-icon ti-upload mr-2"></span>
+                                                                Upload
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
                                         </div>
-                                    </form>
+                                    </div>
                                 </div>
+                                @endpush
                                 <div id="addDocumentEditRow-{{ $document->id }}" class="collapse mt-3">
                                     <form action="{{ route('document.update', $document) }}" method="POST">
                                         @method('PATCH')
