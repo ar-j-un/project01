@@ -122,11 +122,11 @@
                                                 <div class="custom-file custom-file-sm">
                                                     <input type="file"
                                                         name="file"
-                                                        id="fileInput-{{ $document->id }}"
+                                                        id="fileInput-{{ $file->id }}"
                                                         class="custom-file-input @error('file') is-invalid @enderror"
                                                         onchange="$(this).siblings('.custom-file-label').text(this.files[0] ? this.files[0].name : 'Choose file');">
 
-                                                    <label class="custom-file-label" for="fileInput-{{ $document->id }}" id="fileInputLabel-{{ $document->id }}">
+                                                    <label class="custom-file-label" for="fileInput-{{ $file->id }}" id="fileInputLabel-{{ $file->id }}">
                                                         Choose file
                                                     </label>
                                                 </div>
