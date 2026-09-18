@@ -75,6 +75,9 @@ class DocumentFileController extends Controller
 
         $documentFile->delete();
 
-        return redirect()->route('documents.index')->with('success', 'File successfully deleted.');
+        return response()->json([
+            'success' => true,
+            'message' => 'File deleted from "' . $documentFile->document->name . '".',
+        ]);
     }
 }
