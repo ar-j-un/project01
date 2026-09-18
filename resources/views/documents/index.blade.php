@@ -12,7 +12,7 @@
         </header>
 
         <div class="card-body pt-0">
-            <form action="{{ route('documents.store') }}" method="POST" class="row align-items-start">
+            <form id="createDocumentForm" action="{{ route('documents.store') }}" method="POST" class="row align-items-start">
                 @csrf
                 <div class="col-md-9 mb-2 mb-md-0">
                     <input type="text" name="name" value="{{ old('name') }}" placeholder="Document name"
@@ -37,7 +37,7 @@
         </header>
 
         <div class="card-body pt-0">
-
+            <div id="documentsList">
             @forelse ($documents as $document)
                 <div class="accordion" id="accordionDocuments">
                     <div class="card mb-3">
@@ -257,9 +257,9 @@
                     </div>
                 </div>
             @empty
-                <p class="text-muted mb-0">No documents yet. Create one above to get started.</p>
+                <p class="text-muted mb-0" id="noDocumentsText">No documents yet. Create one above to get started.</p>
             @endforelse
-
+            </div>
         </div>
     </div>
 @push('styles')
@@ -360,6 +360,43 @@
             });
         }, 4000);
     }
+
+    $(function () {
+        var $createForm = $('#createDocumentForm');
+        $createForm.on('submit', function (e) {
+            e.preventDefault();
+
+            var $button = $createForm.find('button[type="submit"]');
+            $button.prop('disabled', true);
+
+            $.ajax({
+                url: $createForm.attr('action'),
+                type: 'POST',
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+                data: $createForm.serialize(),
+                dataType: 'json'
+            })
+            .done(function (response) {
+                $('#noDocumentsText').remove();
+
+                var $newCard = $(response.html);
+                $('#documentsList').append($newCard);
+
+            $newCard.filter('.modal').appendTo('#modalsStack');
+            $newCard.find('.modal').appendTo('#modalsStack');
+
+                $createForm[0].reset();
+                showFlashMessage(response.message, 'success');
+            })
+            .fail(function (xhr) {
+                var message = (xhr.responseJSON && xhr.responseJSON.message) || 'Something went wrong. Please try again.';
+                showFlashMessage(message, 'danger');
+            })
+            .always(function () {
+                $button.prop('disabled', false);
+            });
+        });
+    });
 </script>
 @endpush
 </x-app-layout>
