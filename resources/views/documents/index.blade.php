@@ -1,12 +1,10 @@
 <x-app-layout>
     <x-slot name="title">Document</x-slot>
 
-    @if (session('success'))
-        <div class="alert alert-success-soft fade show mb-5" role="alert">
-            <span class="alert-icon ti-check mr-3"></span>
-            <span>{{ session('success') }}</span>
-        </div>
-    @endif
+    <div id="flashAlert" class="alert fade mb-5 {{ session('success') ? 'alert-success-soft show' : 'd-none' }}" role="alert">
+        <span id="flashAlertIcon" class="alert-icon ti-check mr-3"></span>
+        <span id="flashAlertMessage">{{ session('success') }}</span>
+    </div>
 
     <div class="card mb-5">
         <header class="card-header">
@@ -75,7 +73,7 @@
                             <div class="card-body">
 
                                 @forelse ($document->documentFiles as $file)
-                                    <div class="media align-items-center py-3 border-bottom">
+                                    <div class="media align-items-center py-3 border-bottom" id="fileRow-{{ $file->id }}">
                                         @if ($file->is_image)
                                             <img class="u-avatar-md rounded mr-3" src="{{ $file->url }}" alt="{{ $file->file_name }}"
                                                 style="object-fit: cover;">
@@ -162,10 +160,14 @@
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                <form action="{{ route('document-files.destroy', $file) }}" method="POST" class="d-inline">
+                                                <form action="{{ route('document-files.destroy', $file) }}" method="POST"
+                                                    class="d-inline js-delete-file-form" data-file-row="#fileRow-{{ $file->id }}">
                                                     @method('DELETE')
                                                     @csrf
-                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                    <button type="submit" class="btn btn-danger">
+                                                        <span class="spinner-border spinner-border-sm d-none mr-1" role="status" aria-hidden="true"></span>
+                                                        Delete
+                                                    </button>
                                                 </form>
                                             </div>
                                         </div>
@@ -281,5 +283,83 @@
     font-size: 0.875rem;
 }
 </style>
+@endpush
+@push('scripts')
+<script>
+    $(function () {
+        $('.js-delete-file-form').each(function () {
+            var $form = $(this);
+            var $button = $form.find('button[type="submit"]');
+            var $spinner = $button.find('.spinner-border');
+            var $modal = $form.closest('.modal');
+            var $row = $($form.data('file-row'));
+
+            $form.on('submit', function (e) {
+                e.preventDefault();
+
+                $button.prop('disabled', true);
+                $spinner.removeClass('d-none');
+
+                $.ajax({
+                    url: $form.attr('action'),
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    dataType: 'json'
+                })
+                .done(function (response) {
+                    $modal.modal('hide');
+                    $row.fadeOut(200, function () { $row.remove(); });
+                    showFlashMessage(response.message, 'success');
+                })
+                .fail(function (xhr) {
+                    $modal.modal('hide');
+
+                    var message;
+
+                    if (xhr.status === 403) {
+                        message = 'You are not authorized to delete this file.';
+                    } else if (xhr.status === 404) {
+                        message = 'This file no longer exists. The page will refresh.';
+                        setTimeout(function () { location.reload(); }, 2000);
+                    } else if (xhr.status === 0) {
+                        message = 'Network error — please check your connection and try again.';
+                    } else {
+                        message = (xhr.responseJSON && xhr.responseJSON.message) || 'Something went wrong. Please try again.';
+                    }
+
+                    showFlashMessage(message, 'danger');
+                })
+                .always(function () {
+                    $button.prop('disabled', false);
+                    $spinner.addClass('d-none');
+                });
+            });
+        });
+    });
+
+    function showFlashMessage(message, type) {
+        var iconMap = { success: 'ti-check', danger: 'ti-close' };
+        var icon = iconMap[type] || 'ti-check';
+
+        var $alert = $('#flashAlert');
+
+        $alert
+            .removeClass('alert-success-soft alert-danger-soft d-none')
+            .addClass('alert-' + type + '-soft show')
+            .css('display', '');
+
+        $('#flashAlertIcon').attr('class', 'alert-icon ' + icon + ' mr-3');
+        $('#flashAlertMessage').text(message);
+
+        clearTimeout(window.__flashAlertTimeout);
+        window.__flashAlertTimeout = setTimeout(function () {
+            $alert.fadeOut(300, function () {
+                $(this).addClass('d-none').css('display', '');
+            });
+        }, 4000);
+    }
+</script>
 @endpush
 </x-app-layout>
