@@ -21,7 +21,15 @@ class DocumentController extends Controller
 
     public function store(StoreDocumentRequest $request)
     {
-        request()->user()->documents()->create($request->validated());
+        $document = request()->user()->documents()->create($request->validated());
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Document created successfully.',
+                'html' => view('documents._document-card', ['document' => $document])->render(),
+            ]);
+        }
 
         return redirect()->route("documents.index")->with("success","Document created successfully");
     }
