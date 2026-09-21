@@ -191,7 +191,7 @@
                                             </div>
                                             <div class="modal-body">
                                                 <form action="{{ route('document-files.store', $document) }}" method="POST"
-                                                    enctype="multipart/form-data">
+                                                    enctype="multipart/form-data" class="js-add-file-form" data-document-id="{{ $document->id }}">
                                                     @csrf
                                                     <div class="form-row align-items-end">
                                                         <div class="col-md-4 mb-2 mb-md-0">
@@ -372,6 +372,124 @@
                 $button.prop('disabled', false);
             });
         });
+
+         // Add file
+        $(document).on('submit', '.js-add-file-form', function (e) {
+            e.preventDefault();
+
+            var $form = $(this);
+            var docId = $form.data('document-id');
+            var $button = $form.find('button[type="submit"]');
+            var formData = new FormData($form[0]);
+
+            $button.prop('disabled', true);
+
+            $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken },
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json'
+            })
+            .done(function (response) {
+                var file = response.file;
+                var routes = response.routes;
+                var name = $('<div>').text(file.file_name).html();
+        
+                var thumbHtml = file.is_image
+                ? '<img class="u-avatar-md rounded mr-3" src="' + file.url + '" alt="' + name + '" style="object-fit: cover;">'
+                : '<div class="u-icon rounded-circle bg-primary text-white mr-3"><span class="ti-file"></span></div>';
+
+            var rowHtml =
+                '<div class="media align-items-center py-3 border-bottom" id="fileRow-' + file.id + '">' +
+                    thumbHtml +
+                    '<div class="media-body">' +
+                        '<h4 class="font-weight-normal mb-0">' + name + '</h4>' +
+                        '<small class="text-muted text-uppercase">.' + file.extension + '</small>' +
+                    '</div>' +
+                    '<a href="' + file.url + '" download class="btn btn-sm btn-outline-primary btn-with-icon ml-3">' +
+                        '<span class="btn-icon ti-download mr-2"></span>Download' +
+                    '</a>' +
+                    '<button type="button" class="btn btn-primary btn-circle btn-with-icon btn-sm ml-2" data-toggle="collapse" data-target="#addFileEditRow-' + file.id + '" aria-expanded="false" aria-controls="addFileEditRow-' + file.id + '" title="Edit File">' +
+                        '<span class="btn-icon ti-pencil-alt"></span>' +
+                    '</button>' +
+                    '<button type="button" class="btn btn-danger btn-circle btn-with-icon btn-sm ml-2" data-toggle="modal" data-target="#deleteFileModal-' + file.id + '" title="Delete File">' +
+                        '<span class="btn-icon ti-trash"></span>' +
+                    '</button>' +
+                '</div>' +
+                '<div id="addFileEditRow-' + file.id + '" class="collapse mt-3">' +
+                    '<form action="' + routes.update + '" method="POST" enctype="multipart/form-data">' +
+                        '<input type="hidden" name="_method" value="PATCH">' +
+                        '<input type="hidden" name="_token" value="' + csrfToken + '">' +
+                        '<div class="form-row align-items-end">' +
+                            '<div class="col-md-4 mb-2 mb-md-0">' +
+                                '<label class="small text-muted mb-1">File Name</label>' +
+                                '<input type="text" name="file_name" class="form-control form-control-sm" value="' + name + '" placeholder="e.g. Invoice January">' +
+                            '</div>' +
+                            '<div class="col-md-5 mb-2 mb-md-0">' +
+                                '<label class="small text-muted mb-1">File</label>' +
+                                '<div class="custom-file custom-file-sm">' +
+                                    '<input type="file" name="file" id="fileInput-' + file.id + '" class="custom-file-input" onchange="$(this).siblings(\'.custom-file-label\').text(this.files[0] ? this.files[0].name : \'Choose file\');">' +
+                                    '<label class="custom-file-label" for="fileInput-' + file.id + '">Choose file</label>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="col-md-3">' +
+                                '<button type="submit" class="btn btn-block btn-sm btn-primary btn-with-icon"><span class="btn-icon ti-upload mr-2"></span>Update</button>' +
+                            '</div>' +
+                        '</div>' +
+                    '</form>' +
+                '</div>';
+
+            var modalHtml =
+                '<div class="modal fade" id="deleteFileModal-' + file.id + '" tabindex="-1" role="dialog" aria-labelledby="deleteFileModalLabel-' + file.id + '" aria-hidden="true">' +
+                    '<div class="modal-dialog modal-dialog-centered" role="document">' +
+                        '<div class="modal-content">' +
+                            '<div class="modal-header">' +
+                                '<h5 class="modal-title" id="deleteFileModalLabel-' + file.id + '">Delete File</h5>' +
+                                '<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>' +
+                            '</div>' +
+                            '<div class="modal-body">Are you sure you want to delete <strong>' + name + '</strong>? This action cannot be undone.</div>' +
+                            '<div class="modal-footer">' +
+                                '<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>' +
+                                '<form action="' + routes.destroy + '" method="POST" class="d-inline js-delete-file-form" data-file-row="#fileRow-' + file.id + '">' +
+                                    '<input type="hidden" name="_method" value="DELETE">' +
+                                    '<input type="hidden" name="_token" value="' + csrfToken + '">' +
+                                    '<button type="submit" class="btn btn-danger"><span class="spinner-border spinner-border-sm d-none mr-1" role="status" aria-hidden="true"></span>Delete</button>' +
+                                '</form>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+
+            var $cardBody = $('#collapse-' + docId + ' .card-body');
+            $('#noFilesText-' + docId).remove();
+            $(rowHtml).insertBefore($cardBody.find('#addDocumentEditRow-' + docId));
+            $(modalHtml).appendTo('body');
+
+            // Update file count badge
+            var $badge = $('#heading-' + docId + ' .badge');
+            var count = $cardBody.find('.media.align-items-center').length;
+            $badge.text(count + (count === 1 ? ' file' : ' files'));
+
+            // Bind delete AJAX to the freshly inserted delete form
+            bindDeleteForm($('#deleteFileModal-' + file.id + ' .js-delete-file-form'));
+
+            $('#addFileModal-' + docId).modal('hide');
+            $form[0].reset();
+            $form.find('.custom-file-label').text('Choose file');
+            showFlashMessage(response.message, 'success');
+        })
+        .fail(function (xhr) {
+            var message = (xhr.responseJSON && xhr.responseJSON.message) || 'Something went wrong. Please try again.';
+            showFlashMessage(message, 'danger');
+        })
+        .always(function () {
+            $button.prop('disabled', false);
+        });
+    });
+
 
         function showFlashMessage(message, type) {
             var iconMap = { success: 'ti-check', danger: 'ti-close' };
