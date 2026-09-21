@@ -27,10 +27,28 @@ class DocumentFileController extends Controller
 
         $path = $request->file('file')->store('document_files', 'public');
 
-        $document->documentFiles()->create([
+        $file = $document->documentFiles()->create([
             'file_name' => $request->file_name,
             'file_path' => $path,
         ]);
+
+         if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'File added to "' . $document->name . '".',
+                'file' => [
+                    'id' => $file->id,
+                    'file_name' => $file->file_name,
+                    'extension' => $file->extension,
+                    'is_image' => $file->is_image,
+                    'url' => $file->url,
+                ],
+                'routes' => [
+                    'update' => route('document-files.update', [$document, $file]),
+                    'destroy' => route('document-files.destroy', $file),
+                ],
+            ]);
+        }
 
         return redirect()->route('documents.index')->with('success', 'File added to "' . $document->name . '".');
     }
