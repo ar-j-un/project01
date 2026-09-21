@@ -287,8 +287,10 @@
 @push('scripts')
 <script>
     $(function () {
-        $('.js-delete-file-form').each(function () {
-            var $form = $(this);
+        var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+        // Delete file
+        function bindDeleteForm($form) {
             var $button = $form.find('button[type="submit"]');
             var $spinner = $button.find('.spinner-border');
             var $modal = $form.closest('.modal');
@@ -296,16 +298,13 @@
 
             $form.on('submit', function (e) {
                 e.preventDefault();
-
                 $button.prop('disabled', true);
                 $spinner.removeClass('d-none');
 
                 $.ajax({
                     url: $form.attr('action'),
                     type: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
+                    headers: { 'X-CSRF-TOKEN': csrfToken },
                     dataType: 'json'
                 })
                 .done(function (response) {
@@ -315,9 +314,7 @@
                 })
                 .fail(function (xhr) {
                     $modal.modal('hide');
-
                     var message;
-
                     if (xhr.status === 403) {
                         message = 'You are not authorized to delete this file.';
                     } else if (xhr.status === 404) {
@@ -328,7 +325,6 @@
                     } else {
                         message = (xhr.responseJSON && xhr.responseJSON.message) || 'Something went wrong. Please try again.';
                     }
-
                     showFlashMessage(message, 'danger');
                 })
                 .always(function () {
@@ -336,32 +332,12 @@
                     $spinner.addClass('d-none');
                 });
             });
+        }
+
+        $('.js-delete-file-form').each(function () {
+            bindDeleteForm($(this));
         });
-    });
 
-    function showFlashMessage(message, type) {
-        var iconMap = { success: 'ti-check', danger: 'ti-close' };
-        var icon = iconMap[type] || 'ti-check';
-
-        var $alert = $('#flashAlert');
-
-        $alert
-            .removeClass('alert-success-soft alert-danger-soft d-none')
-            .addClass('alert-' + type + '-soft show')
-            .css('display', '');
-
-        $('#flashAlertIcon').attr('class', 'alert-icon ' + icon + ' mr-3');
-        $('#flashAlertMessage').text(message);
-
-        clearTimeout(window.__flashAlertTimeout);
-        window.__flashAlertTimeout = setTimeout(function () {
-            $alert.fadeOut(300, function () {
-                $(this).addClass('d-none').css('display', '');
-            });
-        }, 4000);
-    }
-
-    $(function () {
         var $createForm = $('#createDocumentForm');
         $createForm.on('submit', function (e) {
             e.preventDefault();
@@ -396,7 +372,30 @@
                 $button.prop('disabled', false);
             });
         });
+
+        function showFlashMessage(message, type) {
+            var iconMap = { success: 'ti-check', danger: 'ti-close' };
+            var icon = iconMap[type] || 'ti-check';
+
+            var $alert = $('#flashAlert');
+
+            $alert
+                .removeClass('alert-success-soft alert-danger-soft d-none')
+                .addClass('alert-' + type + '-soft show')
+                .css('display', '');
+
+            $('#flashAlertIcon').attr('class', 'alert-icon ' + icon + ' mr-3');
+            $('#flashAlertMessage').text(message);
+
+            clearTimeout(window.__flashAlertTimeout);
+            window.__flashAlertTimeout = setTimeout(function () {
+                $alert.fadeOut(300, function () {
+                    $(this).addClass('d-none').css('display', '');
+                });
+            }, 4000);
+        }
     });
+
 </script>
 @endpush
 </x-app-layout>
