@@ -490,30 +490,59 @@
         });
     });
 
-    $('.js-edit-document-form').each(function () {
-        var $form = $(this);
+    function bindDocumentEditForm($form) {
         var $button = $form.find('button[type="submit"]');
         var $collapse = $form.closest('.collapse');
+        var docId = $form.attr('action').split('/').pop();
 
         $form.on('submit', function (e) {
-        e.preventDefault();
+            e.preventDefault();
 
-        $.ajax({
-            url: $form.attr('action'),
-            type: 'POST',
-            headers: { 'X-CSRF-TOKEN': csrfToken },
-            data: $form.serialize(),
-            dataType: 'json'
-        })
-         .done(function (response) {
-            var doc = response.document;
-            var name = $('<div>').text(doc.name).html();
-            
-            $('#documentName-' + doc.id).text(name);
-            $collapse.collapse('hide');
-         });
+            $button.prop('disabled', true);
+
+            $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken },
+                data: $form.serialize(),
+                dataType: 'json'
+            })
+            .done(function (response) {
+                var doc = response.document;
+                var name = $('<div>').text(doc.name).html();
+
+                $('#documentName-' + doc.id).text(name);
+
+                $form.find('input[name="name"]').val(doc.name);
+
+                $collapse.collapse('hide');
+                showFlashMessage(response.message, 'success');
+            })
+            .fail(function (xhr) {
+                var message;
+                if (xhr.status === 403) {
+                    message = 'You are not authorized to edit this document.';
+                } else if (xhr.status === 404) {
+                    message = 'This document no longer exists. The page will refresh.';
+                    setTimeout(function () { location.reload(); }, 2000);
+                } else if (xhr.status === 0) {
+                    message = 'Network error — please check your connection and try again.';
+                } else if (xhr.status === 422) {
+                    message = (xhr.responseJSON && xhr.responseJSON.errors && xhr.responseJSON.errors.name && xhr.responseJSON.errors.name[0]) || 'Please check the document name.';
+                } else {
+                    message = (xhr.responseJSON && xhr.responseJSON.message) || 'Something went wrong. Please try again.';
+                }
+                showFlashMessage(message, 'danger');
+            })
+            .always(function () {
+                $button.prop('disabled', false);
+            });
+        });
+    }
+
+    $('.js-edit-document-form').each(function () {
+        bindDocumentEditForm($(this));
     });
-});
 
     function showFlashMessage(message, type) {
         var iconMap = { success: 'ti-check', danger: 'ti-close' };
