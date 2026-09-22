@@ -4,7 +4,7 @@
             <h4 class="card-header-title mb-0" aria-expanded="false" aria-controls="collapse-{{ $document->id }}"
                 data-toggle="collapse" data-target="#collapse-{{ $document->id }}" style="cursor: pointer;">
                 <span class="ti-folder mr-2"></span>
-                {{ $document->name }}
+                <span id="documentName-{{ $document->id }}">{{ $document->name }}</span>
                 <span class="badge badge-md badge-pill badge-primary-soft ml-2">
                     0 files
                 </span>
