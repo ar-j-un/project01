@@ -72,17 +72,33 @@ class DocumentFileController extends Controller
             $data['file_name'] = $request->file_name;
         }
         if ($request->hasFile('file')) {
-            $data['file_path'] = $request->file('file')->store('document_files', 'public');
-
             if ($documentFile->file_path) {
             Storage::disk('public')->delete($documentFile->file_path);
             }
+            $data['file_path'] = $request->file('file')->store('document_files', 'public');
         }
 
-        $documentFile->update($data);
+        if (! empty($data)) {
+            $documentFile->update($data);
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'File updated successfully.',
+                'file' => [
+                    'id' => $documentFile->id,
+                    'file_name' => $documentFile->file_name,
+                    'extension' => $documentFile->extension,
+                    'is_image' => $documentFile->is_image,
+                    'url' => $documentFile->url,
+                ],
+            ]);
+        }
         
         return redirect()->route('documents.index')->with('success', 'File updated to "' . $document->name . '".');
     }
+    
     public function destroy(DocumentFile $documentFile)
     {
         abort_unless($documentFile->document->user_id === request()->user()->id, 403);
