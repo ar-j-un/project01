@@ -103,9 +103,9 @@
                                             <span class="btn-icon ti-trash"></span>
                                         </button>
                                     </div>
-                                    <div id="addFileEditRow-{{ $file->id }}" class="collapse mt-3">
+                                <div id="addFileEditRow-{{ $file->id }}" class="collapse mt-3">
                                     <form action="{{ route('document-files.update', [$document, $file]) }}" method="POST"
-                                        enctype="multipart/form-data">
+                                        enctype="multipart/form-data" class="js-edit-file-form">
                                         @method('PATCH')
                                         @csrf
                                         <div class="form-row align-items-end">
@@ -473,8 +473,8 @@
             var count = $cardBody.find('.media.align-items-center').length;
             $badge.text(count + (count === 1 ? ' file' : ' files'));
 
-            // Bind delete AJAX to the freshly inserted delete form
             bindDeleteForm($('#deleteFileModal-' + file.id + ' .js-delete-file-form'));
+            bindFileEditForm($('#addFileEditRow-' + file.id + ' .js-edit-file-form'));
 
             $('#addFileModal-' + docId).modal('hide');
             $form[0].reset();
@@ -543,6 +543,87 @@
     $('.js-edit-document-form').each(function () {
         bindDocumentEditForm($(this));
     });
+
+    function bindFileEditForm($form) {
+        var $button = $form.find('button[type="submit"]');
+        var $collapse = $form.closest('.collapse');
+        var $row = $collapse.prev('.media.align-items-center');
+
+        $form.on('submit', function (e) {
+            e.preventDefault();
+
+            $button.prop('disabled', true);
+
+            var formData = new FormData($form[0]);
+
+            $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken },
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json'
+            })
+            .done(function (response) {
+                var file = response.file;
+                var name = $('<div>').text(file.file_name).html();
+
+                $row.find('h4.font-weight-normal').text(file.file_name);
+                $row.find('small.text-muted.text-uppercase').text('.' + file.extension);
+
+                $row.find('a[download]').attr('href', file.url);
+
+                if (file.is_image) {
+                    var $existingImg = $row.find('img.u-avatar-md');
+                    if ($existingImg.length) {
+                        $existingImg.attr('src', file.url);
+                    } else {
+                        $row.find('.u-icon.rounded-circle').replaceWith(
+                            '<img class="u-avatar-md rounded mr-3" src="' + file.url + '" alt="' + name + '" style="object-fit: cover;">'
+                        );
+                    }
+                } else {
+                    var $existingIcon = $row.find('.u-icon.rounded-circle');
+                    if (!$existingIcon.length) {
+                        $row.find('img.u-avatar-md').replaceWith(
+                            '<div class="u-icon rounded-circle bg-primary text-white mr-3"><span class="ti-file"></span></div>'
+                        );
+                    }
+                }
+
+                $form.find('input[type="file"]').val('');
+                $form.find('.custom-file-label').text('Choose file');
+
+                $collapse.collapse('hide');
+                showFlashMessage(response.message, 'success');
+            })
+            .fail(function (xhr) {
+                var message;
+                if (xhr.status === 403) {
+                    message = 'You are not authorized to edit this file.';
+                } else if (xhr.status === 404) {
+                    message = 'This file no longer exists. The page will refresh.';
+                    setTimeout(function () { location.reload(); }, 2000);
+                } else if (xhr.status === 0) {
+                    message = 'Network error — please check your connection and try again.';
+                } else if (xhr.status === 422) {
+                    var errors = xhr.responseJSON && xhr.responseJSON.errors;
+                    message = (errors && (errors.file_name || errors.file) && (errors.file_name || errors.file)[0]) || 'Please check the form and try again.';
+                } else {
+                    message = (xhr.responseJSON && xhr.responseJSON.message) || 'Something went wrong. Please try again.';
+                }
+                showFlashMessage(message, 'danger');
+            })
+            .always(function () {
+                $button.prop('disabled', false);
+            });
+        });
+    }
+
+$('.js-edit-file-form').each(function () {
+    bindFileEditForm($(this));
+});
 
     function showFlashMessage(message, type) {
         var iconMap = { success: 'ti-check', danger: 'ti-close' };
