@@ -47,7 +47,7 @@
                                 aria-controls="collapse-{{ $document->id }}" data-toggle="collapse"
                                 data-target="#collapse-{{ $document->id }}" style="cursor: pointer;">
                                 <span class="ti-folder mr-2"></span>
-                                {{ $document->name }}
+                                <span id="documentName-{{ $document->id }}">{{ $document->name }}</span>
                                 <span class="badge badge-md badge-pill badge-primary-soft ml-2">
                                     {{ $document->documentFiles->count() }}
                                     file{{ $document->documentFiles->count() === 1 ? '' : 's' }}
@@ -233,7 +233,7 @@
                                 </div>
                                 @endpush
                                 <div id="addDocumentEditRow-{{ $document->id }}" class="collapse mt-3">
-                                    <form action="{{ route('document.update', $document) }}" method="POST">
+                                    <form action="{{ route('document.update', $document) }}" method="POST" class="js-edit-document-form">
                                         @method('PATCH')
                                         @csrf
                                         <div class="form-row align-items-end">
@@ -490,29 +490,53 @@
         });
     });
 
+    $('.js-edit-document-form').each(function () {
+        var $form = $(this);
+        var $button = $form.find('button[type="submit"]');
+        var $collapse = $form.closest('.collapse');
 
-        function showFlashMessage(message, type) {
-            var iconMap = { success: 'ti-check', danger: 'ti-close' };
-            var icon = iconMap[type] || 'ti-check';
+        $form.on('submit', function (e) {
+        e.preventDefault();
 
-            var $alert = $('#flashAlert');
-
-            $alert
-                .removeClass('alert-success-soft alert-danger-soft d-none')
-                .addClass('alert-' + type + '-soft show')
-                .css('display', '');
-
-            $('#flashAlertIcon').attr('class', 'alert-icon ' + icon + ' mr-3');
-            $('#flashAlertMessage').text(message);
-
-            clearTimeout(window.__flashAlertTimeout);
-            window.__flashAlertTimeout = setTimeout(function () {
-                $alert.fadeOut(300, function () {
-                    $(this).addClass('d-none').css('display', '');
-                });
-            }, 4000);
-        }
+        $.ajax({
+            url: $form.attr('action'),
+            type: 'POST',
+            headers: { 'X-CSRF-TOKEN': csrfToken },
+            data: $form.serialize(),
+            dataType: 'json'
+        })
+         .done(function (response) {
+            var doc = response.document;
+            var name = $('<div>').text(doc.name).html();
+            
+            $('#documentName-' + doc.id).text(name);
+            $collapse.collapse('hide');
+         });
     });
+});
+
+    function showFlashMessage(message, type) {
+        var iconMap = { success: 'ti-check', danger: 'ti-close' };
+        var icon = iconMap[type] || 'ti-check';
+
+        var $alert = $('#flashAlert');
+
+        $alert
+            .removeClass('alert-success-soft alert-danger-soft d-none')
+            .addClass('alert-' + type + '-soft show')
+            .css('display', '');
+
+        $('#flashAlertIcon').attr('class', 'alert-icon ' + icon + ' mr-3');
+        $('#flashAlertMessage').text(message);
+
+        clearTimeout(window.__flashAlertTimeout);
+        window.__flashAlertTimeout = setTimeout(function () {
+            $alert.fadeOut(300, function () {
+                $(this).addClass('d-none').css('display', '');
+            });
+        }, 4000);
+    }
+});
 
 </script>
 @endpush
