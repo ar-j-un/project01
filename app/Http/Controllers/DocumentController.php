@@ -46,7 +46,21 @@ class DocumentController extends Controller
 
     public function update(StoreDocumentRequest $request, Document $document)
     {
+        abort_unless($document->user_id === $request->user()->id, 403);
+
         $document->update($request->validated());
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Document updated successfully.',
+                'document' => [
+                    'id' => $document->id,
+                    'name' => $document->name,
+                ],
+            ]);
+        }
+
         return redirect()->route("documents.index")->with("success","Document updated successfully");
     }
 
