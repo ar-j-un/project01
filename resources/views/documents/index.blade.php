@@ -338,7 +338,18 @@
                 })
                 .done(function (response) {
                     $modal.modal('hide');
-                    $row.fadeOut(200, function () { $row.remove(); });
+                    
+                    var $collapseBody = $row.closest('.collapse[id^="collapse-"]');
+                    var docId = $collapseBody.attr('id') ? $collapseBody.attr('id').replace('collapse-', '') : null;
+
+                    $row.fadeOut(200, function () { 
+                        $row.remove();
+
+                        var $cardBody = $('#collapse-' + docId + ' .card-body');
+                        var $badge = $('#heading-' + docId + ' .badge');
+                        var count = $cardBody.find('.media.align-items-center').length;
+                        $badge.text(count + (count === 1 ? ' file' : ' files'));
+                    });
                     showFlashMessage(response.message, 'success');
                 })
                 .fail(function (xhr) {
