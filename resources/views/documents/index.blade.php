@@ -122,7 +122,22 @@
                                                         name="file"
                                                         id="fileInput-{{ $file->id }}"
                                                         class="custom-file-input @error('file') is-invalid @enderror"
-                                                        onchange="$(this).siblings('.custom-file-label').text(this.files[0] ? this.files[0].name : 'Choose file');">
+                                                        onchange="
+                                                            let file = this.files[0];
+                                                            let label = this.nextElementSibling;
+                                                            if (file) {
+                                                                let name = file.name;
+                                                                let dotIndex = name.lastIndexOf('.');
+                                                                let ext = dotIndex !== -1 ? name.substring(dotIndex) : '';
+                                                                let baseName = dotIndex !== -1 ? name.substring(0, dotIndex) : name;
+                                                                let truncated = baseName.length > 10
+                                                                    ? baseName.substring(0, 10) + '...' + ext
+                                                                    : name;
+                                                                label.textContent = truncated;
+                                                            } else {
+                                                                label.textContent = 'Choose file';
+                                                            }
+                                                        ">
 
                                                     <label class="custom-file-label" for="fileInput-{{ $file->id }}" id="fileInputLabel-{{ $file->id }}">
                                                         Choose file
@@ -207,8 +222,22 @@
                                                                     name="file"
                                                                     id="addFileModalInput-{{ $document->id }}"
                                                                     class="custom-file-input @error('file') is-invalid @enderror"
-                                                                    onchange="$(this).siblings('.custom-file-label').text(this.files[0] ? this.files[0].name : 'Choose file');">
-
+                                                                    onchange="
+                                                                        let file = this.files[0];
+                                                                        let label = this.nextElementSibling;
+                                                                        if (file) {
+                                                                            let name = file.name;
+                                                                            let dotIndex = name.lastIndexOf('.');
+                                                                            let ext = dotIndex !== -1 ? name.substring(dotIndex) : '';
+                                                                            let baseName = dotIndex !== -1 ? name.substring(0, dotIndex) : name;
+                                                                            let truncated = baseName.length > 10
+                                                                                ? baseName.substring(0, 10) + '...' + ext
+                                                                                : name;
+                                                                            label.textContent = truncated;
+                                                                        } else {
+                                                                            label.textContent = 'Choose file';
+                                                                        }
+                                                                    ">
                                                                 <label class="custom-file-label" for="fileInput-{{ $document->id }}" id="fileInputLabel-{{ $document->id }}">
                                                                     Choose file
                                                                 </label>
