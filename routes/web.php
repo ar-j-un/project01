@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
     Route::post('/documents', [DocumentController::class, 'store'])->name('documents.store');
     Route::patch('/documents/{document}', [DocumentController::class, 'update'])->name('document.update');
+    Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])->name('document.destroy');
     Route::post('/documents/{document}/files', [DocumentFileController::class, 'store'])->name('document-files.store');
     Route::patch('/documents/{document}/files/{documentFile}', [DocumentFileController::class, 'update'])->name('document-files.update');
     Route::delete('/documents/files/{documentFile}', [DocumentFileController::class, 'destroy'])->name('document-files.destroy');
