@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreDocumentRequest;
 use App\Models\Document;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
 
 class DocumentController extends Controller
 {
@@ -64,8 +66,18 @@ class DocumentController extends Controller
         return redirect()->route("documents.index")->with("success","Document updated successfully");
     }
 
-    public function destroy(Document $document)
+    public function destroy(Document $document, Request $request)
     {
-        //
+        abort_unless($document->user_id === $request->user()->id,403);
+        if ($document->documentFile->file_path) {
+            Storage::disk('public')->delete($document->documentFile->file_path);
+        }
+        $document->documentFiles()->delete();
+        $document->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Document and its files deleted from "' . $document->name . ' successfully".',
+        ]);
     }
 }
