@@ -65,6 +65,10 @@
                                 aria-expanded="false" aria-controls="addDocumentEditRow-{{ $document->id }}" title="Edit Document">
                                 <span class="btn-icon ti-pencil-alt"></span>
                             </button>
+                            <button type="button" class="btn btn-danger btn-circle btn-with-icon btn-sm ml-2"
+                                data-toggle="modal" data-target="#deleteDocumentModal-{{ $document->id }}" title="Delete Document">
+                                <span class="btn-icon ti-trash"></span>
+                            </button>
                             </div>
                         </div>
 
@@ -261,6 +265,37 @@
                                     </div>
                                 </div>
                                 @endpush
+                                @push('modals')
+                                <div class="modal fade" id="deleteDocumentModal-{{ $document->id }}" tabindex="-1" role="dialog"
+                                    aria-labelledby="deleteDocumentModalLabel-{{ $document->id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteDocumentModalLabel-{{ $document->id }}">Delete Document</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                Are you sure you want to delete <strong>{{ $document->name }}</strong> ? and all its files.
+                                                This action cannot be undone.
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                <form action="{{ route('document.destroy', $document) }}" method="POST"
+                                                    class="d-inline js-delete-document-form" data-document-row="#documentRow-{{ $document->id }}">
+                                                    @method('DELETE')
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-danger">
+                                                        <span class="spinner-border spinner-border-sm d-none mr-1" role="status" aria-hidden="true"></span>
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endpush
                                 <div id="addDocumentEditRow-{{ $document->id }}" class="collapse mt-3">
                                     <form action="{{ route('document.update', $document) }}" method="POST" class="js-edit-document-form">
                                         @method('PATCH')
@@ -323,7 +358,7 @@
             var $button = $form.find('button[type="submit"]');
             var $spinner = $button.find('.spinner-border');
             var $modal = $form.closest('.modal');
-            var $row = $($form.data('file-row'));
+            var $row = $($form.data('file-row') || $form.data('document-row'));
 
             $form.on('submit', function (e) {
                 e.preventDefault();
@@ -338,18 +373,20 @@
                 })
                 .done(function (response) {
                     $modal.modal('hide');
-                    
-                    var $collapseBody = $row.closest('.collapse[id^="collapse-"]');
-                    var docId = $collapseBody.attr('id') ? $collapseBody.attr('id').replace('collapse-', '') : null;
 
-                    $row.fadeOut(200, function () { 
-                        $row.remove();
-
-                        var $cardBody = $('#collapse-' + docId + ' .card-body');
-                        var $badge = $('#heading-' + docId + ' .badge');
-                        var count = $cardBody.find('.media.align-items-center').length;
-                        $badge.text(count + (count === 1 ? ' file' : ' files'));
-                    });
+                    if ($form.hasClass('js-delete-file-form')) {
+                        var $collapseBody = $row.closest('.collapse[id^="collapse-"]');
+                        var docId = $collapseBody.attr('id') ? $collapseBody.attr('id').replace('collapse-', '') : null;
+                        $row.fadeOut(200, function () { 
+                            $row.remove();
+                            var $cardBody = $('#collapse-' + docId + ' .card-body');
+                            var $badge = $('#heading-' + docId + ' .badge');
+                            var count = $cardBody.find('.media.align-items-center').length;
+                            $badge.text(count + (count === 1 ? ' file' : ' files'));
+                        });
+                    } else if ($form.hasClass('js-delete-document-form')) {
+                         $row.fadeOut(200, function () {$row.remove();});
+                    }
                     showFlashMessage(response.message, 'success');
                 })
                 .fail(function (xhr) {
@@ -374,7 +411,7 @@
             });
         }
 
-        $('.js-delete-file-form').each(function () {
+        $('.js-delete-file-form, .js-delete-document-form').each(function () {
             bindDeleteForm($(this));
         });
 
