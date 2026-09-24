@@ -21,6 +21,10 @@
                     aria-controls="addDocumentEditRow-{{ $document->id }}" title="Edit Document">
                     <span class="btn-icon ti-pencil-alt"></span>
                 </button>
+                <button type="button" class="btn btn-danger btn-circle btn-with-icon btn-sm ml-2" data-toggle="modal"
+                    data-target="#deleteDocumentModal-{{ $document->id }}" title="Delete Document">
+                    <span class="btn-icon ti-trash"></span>
+                </button>
             </div>
         </div>
 
@@ -92,6 +96,36 @@
                             </button>
                         </div>
                     </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="deleteDocumentModal-{{ $document->id }}" tabindex="-1" role="dialog"
+    aria-labelledby="deleteDocumentModalLabel-{{ $document->id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteDocumentModalLabel-{{ $document->id }}">Delete Document</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <strong>{{ $document->name }}</strong> ? and all its files.
+                This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <form action="{{ route('document.destroy', $document) }}" method="POST"
+                    class="d-inline js-delete-document-form" data-document-row="#documentRow-{{ $document->id }}">
+                    @method('DELETE')
+                    @csrf
+                    <button type="submit" class="btn btn-danger">
+                        <span class="spinner-border spinner-border-sm d-none mr-1" role="status"
+                            aria-hidden="true"></span>
+                        Delete
+                    </button>
                 </form>
             </div>
         </div>
