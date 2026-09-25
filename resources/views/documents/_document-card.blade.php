@@ -62,42 +62,69 @@
 <div class="modal fade" id="addFileModal-{{ $document->id }}" tabindex="-1" role="dialog"
     aria-labelledby="addFileModalLabel-{{ $document->id }}" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
+        <div class="modal-content border-0 shadow-sm">
             <div class="modal-header">
-                <h5 class="modal-title" id="addFileModalLabel-{{ $document->id }}">Add File</h5>
+                <div>
+                    <h5 class="modal-title" id="addFileModalLabel-{{ $document->id }}">
+                        <span class="ti-upload mr-2 text-primary"></span>Add File
+                    </h5>
+                    <small class="text-muted"> Add a file to
+                        <strong>{{ $document->name }}</strong> </small>
+                </div>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <form action="{{ route('document-files.store', $document) }}" method="POST"
-                    enctype="multipart/form-data">
-                    @csrf
-                    <div class="form-row align-items-end">
-                        <div class="col-md-4 mb-2 mb-md-0">
-                            <label class="small text-muted mb-1">File Name</label>
-                            <input type="text" name="file_name" class="form-control form-control-sm"
-                                placeholder="e.g. Invoice January">
-                        </div>
-                        <div class="col-md-5 mb-2 mb-md-0">
-                            <label class="small text-muted mb-1">File</label>
-                            <div class="custom-file custom-file-sm">
-                                <input type="file" name="file" id="addFileModalInput-{{ $document->id }}"
-                                    class="custom-file-input"
-                                    onchange="$(this).siblings('.custom-file-label').text(this.files[0] ? this.files[0].name : 'Choose file');">
-                                <label class="custom-file-label" for="addFileModalInput-{{ $document->id }}">Choose
-                                    file</label>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <button type="submit" class="btn btn-block btn-sm btn-primary btn-with-icon">
-                                <span class="btn-icon ti-upload mr-2"></span>
-                                Upload
-                            </button>
-                        </div>
+            <form action="{{ route('document-files.store', $document) }}" method="POST" enctype="multipart/form-data"
+                class="js-add-file-form" data-document-id="{{ $document->id }}">
+                @csrf
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="fileName-{{ $document->id }}"> File Name </label>
+                        <input type="text" name="file_name" id="fileName-{{ $document->id }}" class="form-control"
+                            placeholder="e.g. Invoice January">
                     </div>
-                </form>
-            </div>
+                    <div class="form-group mb-0">
+                        <label for="addFileModalInput-{{ $document->id }}"> File
+                        </label>
+                        <div class="custom-file custom-file-sm">
+                            <input type="file" name="file" id="addFileModalInput-{{ $document->id }}" required
+                                class="custom-file-input @error('file') is-invalid @enderror" onchange="
+                                let file = this.files[0];
+                                let label = this.nextElementSibling;
+                                if (file) {
+                                    let name = file.name;
+                                    let dotIndex = name.lastIndexOf('.');
+                                    let ext = dotIndex !== -1 ? name.substring(dotIndex) : '';
+                                    let baseName = dotIndex !== -1 ? name.substring(0, dotIndex) : name;
+                                    let truncated = baseName.length > 10
+                                        ? baseName.substring(0, 10) + '...' + ext
+                                        : name;
+                                    label.textContent = truncated;
+                                } else {
+                                    label.textContent = 'Choose file';
+                                }
+                            ">
+                            <label class="custom-file-label" for="addFileModalInput-{{ $document->id }}"
+                                id="addFileModalInputLabel-{{ $document->id }}">
+                                Choose file
+                            </label>
+                        </div>
+
+                        @error('file')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                        <small class="form-text text-muted"> Select the file you want to
+                            upload. </small>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light"> <button type="button" class="btn btn-secondary"
+                        data-dismiss="modal"> Cancel </button>
+                    <button type="submit" class="btn btn-primary btn-with-icon"> <span
+                            class="btn-icon ti-upload mr-2"></span> Upload File
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
