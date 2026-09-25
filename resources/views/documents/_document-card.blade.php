@@ -89,22 +89,23 @@
                         </label>
                         <div class="custom-file custom-file-sm">
                             <input type="file" name="file" id="addFileModalInput-{{ $document->id }}" required
-                                class="custom-file-input @error('file') is-invalid @enderror" onchange="
-                                let file = this.files[0];
-                                let label = this.nextElementSibling;
-                                if (file) {
-                                    let name = file.name;
-                                    let dotIndex = name.lastIndexOf('.');
-                                    let ext = dotIndex !== -1 ? name.substring(dotIndex) : '';
-                                    let baseName = dotIndex !== -1 ? name.substring(0, dotIndex) : name;
-                                    let truncated = baseName.length > 10
-                                        ? baseName.substring(0, 10) + '...' + ext
-                                        : name;
-                                    label.textContent = truncated;
-                                } else {
-                                    label.textContent = 'Choose file';
-                                }
-                            ">
+                                class="custom-file-input @error('file') is-invalid @enderror"
+                                onchange="
+                                    let file = this.files[0];
+                                    let label = this.nextElementSibling;
+                                    if (file) {
+                                        let name = file.name;
+                                        let dotIndex = name.lastIndexOf('.');
+                                        let ext = dotIndex !== -1 ? name.substring(dotIndex) : '';
+                                        let baseName = dotIndex !== -1 ? name.substring(0, dotIndex) : name;
+                                        let truncated = baseName.length > 20
+                                            ? baseName.substring(0, 20) + '...' + ext
+                                            : name;
+                                        label.textContent = truncated;
+                                    } else {
+                                        label.textContent = 'Choose file';
+                                    }
+                                ">
                             <label class="custom-file-label" for="addFileModalInput-{{ $document->id }}"
                                 id="addFileModalInputLabel-{{ $document->id }}">
                                 Choose file
