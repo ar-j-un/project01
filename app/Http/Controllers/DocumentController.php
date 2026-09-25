@@ -69,8 +69,11 @@ class DocumentController extends Controller
     public function destroy(Document $document, Request $request)
     {
         abort_unless($document->user_id === $request->user()->id,403);
-        if ($document->documentFile->file_path) {
-            Storage::disk('public')->delete($document->documentFile->file_path);
+
+        foreach ($document->documentFiles as $file) {
+            if (Storage::disk('public')->exists($file->file_path)) {
+                Storage::disk('public')->delete($file->file_path);
+            }
         }
         $document->documentFiles()->delete();
         $document->delete();
