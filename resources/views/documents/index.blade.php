@@ -114,23 +114,7 @@
 
                                                         <div class="custom-file custom-file-sm">
                                                             <input type="file" name="file" id="fileInput-{{ $file->id }}"
-                                                                class="custom-file-input @error('file') is-invalid @enderror"
-                                                                onchange="
-                                                                                                                        let file = this.files[0];
-                                                                                                                        let label = this.nextElementSibling;
-                                                                                                                        if (file) {
-                                                                                                                            let name = file.name;
-                                                                                                                            let dotIndex = name.lastIndexOf('.');
-                                                                                                                            let ext = dotIndex !== -1 ? name.substring(dotIndex) : '';
-                                                                                                                            let baseName = dotIndex !== -1 ? name.substring(0, dotIndex) : name;
-                                                                                                                            let truncated = baseName.length > 10
-                                                                                                                                ? baseName.substring(0, 10) + '...' + ext
-                                                                                                                                : name;
-                                                                                                                            label.textContent = truncated;
-                                                                                                                        } else {
-                                                                                                                            label.textContent = 'Choose file';
-                                                                                                                        }
-                                                                                                                    ">
+                                                                class="custom-file-input @error('file') is-invalid @enderror">
 
                                                             <label class="custom-file-label" for="fileInput-{{ $file->id }}"
                                                                 id="fileInputLabel-{{ $file->id }}">
@@ -229,23 +213,7 @@
                                                                 <div class="custom-file custom-file-sm">
                                                                     <input type="file" name="file"
                                                                         id="addFileModalInput-{{ $document->id }}" required
-                                                                        class="custom-file-input @error('file') is-invalid @enderror"
-                                                                        onchange="
-                                                                                                                                                    let file = this.files[0];
-                                                                                                                                                    let label = this.nextElementSibling;
-                                                                                                                                                    if (file) {
-                                                                                                                                                        let name = file.name;
-                                                                                                                                                        let dotIndex = name.lastIndexOf('.');
-                                                                                                                                                        let ext = dotIndex !== -1 ? name.substring(dotIndex) : '';
-                                                                                                                                                        let baseName = dotIndex !== -1 ? name.substring(0, dotIndex) : name;
-                                                                                                                                                        let truncated = baseName.length > 10
-                                                                                                                                                            ? baseName.substring(0, 10) + '...' + ext
-                                                                                                                                                            : name;
-                                                                                                                                                        label.textContent = truncated;
-                                                                                                                                                    } else {
-                                                                                                                                                        label.textContent = 'Choose file';
-                                                                                                                                                    }
-                                                                                                                                                ">
+                                                                        class="custom-file-input @error('file') is-invalid @enderror">
                                                                     <label class="custom-file-label"
                                                                         for="addFileModalInput-{{ $document->id }}"
                                                                         id="addFileModalInputLabel-{{ $document->id }}">
@@ -264,7 +232,8 @@
                                                                 class="btn btn-secondary" data-dismiss="modal"> Cancel </button>
                                                             <button type="submit" class="btn btn-primary btn-with-icon"> <span
                                                                     class="btn-icon ti-upload mr-2"></span> Upload File
-                                                            </button> </div>
+                                                            </button>
+                                                        </div>
                                                     </form>
                                                 </div>
                                             </div>
@@ -747,6 +716,24 @@
 
                 $('.js-edit-file-form').each(function () {
                     bindFileEditForm($(this));
+                });
+
+                $(document).on('change', '.custom-file-input', function () {
+                    var file = this.files[0];
+                    var $label = $(this).siblings('.custom-file-label');
+
+                    if (file) {
+                        var name = file.name;
+                        var dotIndex = name.lastIndexOf('.');
+                        var ext = dotIndex !== -1 ? name.substring(dotIndex) : '';
+                        var baseName = dotIndex !== -1 ? name.substring(0, dotIndex) : name;
+                        var truncated = baseName.length > 20
+                            ? baseName.substring(0, 20) + '...' + ext
+                            : name;
+                        $label.text(truncated);
+                    } else {
+                        $label.text('Choose file');
+                    }
                 });
 
                 function showFlashMessage(message, type) {
