@@ -7,37 +7,22 @@
         <span id="flashAlertMessage">{{ session('success') }}</span>
     </div>
 
-    <div class="card mb-5">
-        <header class="card-header">
-            <h2 class="h4 card-header-title">Create New Document</h2>
-        </header>
-
-        <div class="card-body pt-0">
-            <form id="createDocumentForm" action="{{ route('documents.store') }}" method="POST"
-                class="row align-items-start">
-                @csrf
-                <div class="col-md-9 mb-2 mb-md-0">
-                    <input type="text" name="name" value="{{ old('name') }}" placeholder="Document name"
-                        class="form-control @error('name') is-invalid @enderror">
-                    @error('name')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-block btn-primary btn-with-icon">
-                        <span class="btn-icon ti-plus mr-2"></span>
-                        Create
-                    </button>
-                </div>
-            </form>
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="mb-3 mb-md-0">
+            <h1 class="h3 mb-1">Documents</h1>
+            <p class="text-muted mb-0">
+                Organize your documents and files in one place.
+            </p>
         </div>
+
+        <button type="button" class="btn btn-primary btn-with-icon" data-toggle="modal"
+            data-target="#createDocumentModal">
+            <span class="btn-icon ti-plus mr-2"></span>
+            New Document
+        </button>
     </div>
 
     <div class="card">
-        <header class="card-header">
-            <h2 class="h4 card-header-title">My Documents</h2>
-        </header>
-
         <div class="card-body pt-0">
             <div id="documentsList">
                 <div class="accordion" id="accordionDocuments">
@@ -353,6 +338,37 @@
             </div>
         </div>
     </div>
+    @push('modals')
+        <div class="modal fade" id="createDocumentModal" tabindex="-1" role="dialog"
+            aria-labelledby="createDocumentModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div>
+                            <h5 class="modal-title" id="createDocumentModalLabel"> Create New Document </h5> <small
+                                class="text-muted"> Give your document a name to get started. </small>
+                        </div> <button type="button" class="close" data-dismiss="modal" aria-label="Close"> <span
+                                aria-hidden="true">&times;</span> </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="createDocumentForm" action="{{ route('documents.store') }}" method="POST">
+                            @csrf
+                            <div class="form-group mb-4"> <label class="small text-muted mb-1"> Document Name </label>
+                                <input type="text" name="name" value="{{ old('name') }}"
+                                    placeholder="e.g. Project Documents"
+                                    class="form-control @error('name') is-invalid @enderror" autofocus>
+                                @error('name')
+                                <div class="invalid-feedback"> {{ $message }} </div> @enderror
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block btn-with-icon">
+                                <span class="btn-icon ti-plus mr-2"></span> Create Document
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endpush
     @push('styles')
         <style>
             .custom-file-sm,
