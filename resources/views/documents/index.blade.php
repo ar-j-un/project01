@@ -7,15 +7,13 @@
         <span id="flashAlertMessage">{{ session('success') }}</span>
     </div>
 
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex flex-column flex-md-row align-items-center justify-content-between mb-4">
         <div class="mb-3 mb-md-0">
             <h1 class="h3 mb-1">Documents</h1>
-            <p class="text-muted mb-0">
-                Organize your documents and files in one place.
-            </p>
+            <p class="text-muted mb-0">Organize your documents and files in one place.</p>
         </div>
 
-        <button type="button" class="btn btn-primary btn-with-icon" data-toggle="modal"
+        <button type="button" class="btn btn-primary btn-with-icon col-12 col-lg-2" data-toggle="modal"
             data-target="#createDocumentModal">
             <span class="btn-icon ti-plus mr-2"></span>
             New Document
@@ -29,19 +27,21 @@
                     @forelse ($documents as $document)
                         <div class="card mb-3" id="documentRow-{{ $document->id }}">
                             <div id="heading-{{ $document->id }}"
-                                class="card-header d-flex align-items-center justify-content-between">
-                                <h4 class="card-header-title mb-0" aria-expanded="false"
-                                    aria-controls="collapse-{{ $document->id }}" data-toggle="collapse"
-                                    data-target="#collapse-{{ $document->id }}" style="cursor: pointer;">
-                                    <span class="ti-folder mr-2"></span>
-                                    <span id="documentName-{{ $document->id }}">{{ $document->name }}</span>
-                                    <span class="badge badge-md badge-pill badge-primary-soft ml-2">
+                                class="card-header d-flex flex-wrap align-items-center justify-content-between">
+                                <h4 class="card-header-title mb-0 col-12 col-md px-0 d-flex align-items-center"
+                                    aria-expanded="false" aria-controls="collapse-{{ $document->id }}"
+                                    data-toggle="collapse" data-target="#collapse-{{ $document->id }}"
+                                    style="cursor: pointer;">
+                                    <span class="ti-folder mr-2 flex-shrink-0"></span>
+                                    <span id="documentName-{{ $document->id }}"
+                                        class="text-truncate">{{ $document->name }}</span>
+                                    <span class="badge badge-md badge-pill badge-primary-soft ml-2 flex-shrink-0">
                                         {{ $document->documentFiles->count() }}
                                         file{{ $document->documentFiles->count() === 1 ? '' : 's' }}
                                     </span>
                                 </h4>
 
-                                <div>
+                                <div class="col-12 col-md-auto px-0 mt-2 mt-md-0 d-flex">
                                     <button type="button" class="btn btn-primary btn-circle btn-with-icon btn-sm"
                                         data-toggle="modal" data-target="#addFileModal-{{ $document->id }}"
                                         title="Add File">
