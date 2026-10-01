@@ -49,6 +49,7 @@
     <script src="{{ asset('vendor/awesome-dashboard/js/sidebar-nav.js') }}"></script>
     <script src="{{ asset('vendor/awesome-dashboard/js/main.js') }}"></script>
     <script src="{{ asset('js/custom.js') }}"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
     @stack('scripts')
 </body>
 
