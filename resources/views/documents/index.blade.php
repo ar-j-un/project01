@@ -66,9 +66,10 @@
                                 <div class="card-body">
 
                                     @forelse ($document->documentFiles as $file)
-                                        <div class="media align-items-center py-3 border-bottom" id="fileRow-{{ $file->id }}">
+                                        <div class="media align-items-center py-3 border-bottom d-flex flex-wrap"
+                                            id="fileRow-{{ $file->id }}">
                                             @if ($file->is_image)
-                                                <img class="u-avatar-md rounded mr-3" src="{{ $file->url }}"
+                                                <img class="u-avatar-md rounded mr-3 ml-3" src="{{ $file->url }}"
                                                     alt="{{ $file->file_name }}" style="object-fit: cover;">
                                             @else
                                                 <div class="u-icon rounded-circle bg-primary text-white mr-3">
@@ -80,23 +81,26 @@
                                                 <h4 class="font-weight-normal mb-0">{{ $file->file_name }}</h4>
                                                 <small class="text-muted text-uppercase">.{{ $file->extension }}</small>
                                             </div>
-
-                                            <a href="{{ $file->url }}" download
-                                                class="btn btn-sm btn-outline-primary btn-with-icon ml-3">
-                                                <span class="btn-icon ti-download mr-2"></span>
-                                                Download
-                                            </a>
-                                            <button type="button" class="btn btn-primary btn-circle btn-with-icon btn-sm ml-2"
-                                                data-toggle="collapse" data-target="#addFileEditRow-{{ $file->id }}"
-                                                aria-expanded="false" aria-controls="addFileEditRow-{{ $file->id }}"
-                                                title="Edit File">
-                                                <span class="btn-icon ti-pencil-alt"></span>
-                                            </button>
-                                            <button type="button" class="btn btn-danger btn-circle btn-with-icon btn-sm ml-2"
-                                                data-toggle="modal" data-target="#deleteFileModal-{{ $file->id }}"
-                                                title="Delete File">
-                                                <span class="btn-icon ti-trash"></span>
-                                            </button>
+                                            <div class="file-actions d-flex align-items-center mt-3">
+                                                <a href="{{ $file->url }}" download
+                                                    class="btn btn-sm btn-outline-primary btn-with-icon ml-3">
+                                                    <span class="btn-icon ti-download mr-2"></span>
+                                                    Download
+                                                </a>
+                                                <button type="button"
+                                                    class="btn btn-primary btn-circle btn-with-icon btn-sm ml-2"
+                                                    data-toggle="collapse" data-target="#addFileEditRow-{{ $file->id }}"
+                                                    aria-expanded="false" aria-controls="addFileEditRow-{{ $file->id }}"
+                                                    title="Edit File">
+                                                    <span class="btn-icon ti-pencil-alt"></span>
+                                                </button>
+                                                <button type="button"
+                                                    class="btn btn-danger btn-circle btn-with-icon btn-sm ml-2"
+                                                    data-toggle="modal" data-target="#deleteFileModal-{{ $file->id }}"
+                                                    title="Delete File">
+                                                    <span class="btn-icon ti-trash"></span>
+                                                </button>
+                                            </div>
                                         </div>
                                         <div id="addFileEditRow-{{ $file->id }}" class="collapse mt-3">
                                             <form action="{{ route('document-files.update', [$document, $file]) }}"
@@ -492,16 +496,17 @@
                             var name = $('<div>').text(file.file_name).html();
 
                             var thumbHtml = file.is_image
-                                ? '<img class="u-avatar-md rounded mr-3" src="' + file.url + '" alt="' + name + '" style="object-fit: cover;">'
+                                ? '<img class="u-avatar-md rounded mr-3 ml-3" src="' + file.url + '" alt="' + name + '" style="object-fit: cover;">'
                                 : '<div class="u-icon rounded-circle bg-primary text-white mr-3"><span class="ti-file"></span></div>';
 
                             var rowHtml =
-                                '<div class="media align-items-center py-3 border-bottom" id="fileRow-' + file.id + '">' +
+                                '<div class="media align-items-center py-3 border-bottom d-flex flex-wrap" id="fileRow-' + file.id + '">' +
                                 thumbHtml +
                                 '<div class="media-body">' +
                                 '<h4 class="font-weight-normal mb-0">' + name + '</h4>' +
                                 '<small class="text-muted text-uppercase">.' + file.extension + '</small>' +
                                 '</div>' +
+                                '<div class="file-actions d-flex align-items-center mt-3">' +
                                 '<a href="' + file.url + '" download class="btn btn-sm btn-outline-primary btn-with-icon ml-3">' +
                                 '<span class="btn-icon ti-download mr-2"></span>Download' +
                                 '</a>' +
@@ -511,6 +516,7 @@
                                 '<button type="button" class="btn btn-danger btn-circle btn-with-icon btn-sm ml-2" data-toggle="modal" data-target="#deleteFileModal-' + file.id + '" title="Delete File">' +
                                 '<span class="btn-icon ti-trash"></span>' +
                                 '</button>' +
+                                '</div>' +
                                 '</div>' +
                                 '<div id="addFileEditRow-' + file.id + '" class="collapse mt-3">' +
                                 '<form action="' + routes.update + '" method="POST" enctype="multipart/form-data">' +
