@@ -346,28 +346,6 @@
             </div>
         </div>
     @endpush
-    @push('styles')
-        <style>
-            .custom-file-sm,
-            .custom-file-sm .custom-file-input,
-            .custom-file-sm .custom-file-label {
-                height: calc(1.4em + 0.5rem + 4px);
-            }
-
-            .custom-file-sm .custom-file-label {
-                padding: 0.25rem 0.5rem;
-                font-size: 0.875rem;
-                line-height: 1.5;
-            }
-
-            .custom-file-sm .custom-file-label::after {
-                height: calc(1.5em + 0.5rem);
-                padding: 0.25rem 0.5rem;
-                line-height: 1.5;
-                font-size: 0.875rem;
-            }
-        </style>
-    @endpush
     @push('scripts')
         <script>
             $(function () {
