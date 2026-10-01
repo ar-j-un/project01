@@ -519,7 +519,7 @@
                                 '</div>' +
                                 '</div>' +
                                 '<div id="addFileEditRow-' + file.id + '" class="collapse mt-3">' +
-                                '<form action="' + routes.update + '" method="POST" enctype="multipart/form-data">' +
+                                '<form action="' + routes.update + '" method="POST" enctype="multipart/form-data" class="js-edit-file-form">' +
                                 '<input type="hidden" name="_method" value="PATCH">' +
                                 '<input type="hidden" name="_token" value="' + csrfToken + '">' +
                                 '<div class="form-row align-items-end">' +
