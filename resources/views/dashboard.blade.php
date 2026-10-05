@@ -82,7 +82,7 @@
             </div>
         </div>
     </div>
-    <div id="example" style="width:100%; height:400px;"></div>
+    <div id="activity-chart" style="width:100%; height:400px;"></div>
     <div class="row">
         <div class="col-md-6 mb-5">
             <div class="card h-100">
@@ -207,30 +207,26 @@
                     { name: 'Profit', data: @json($profit) }
                 ]
             });
-            document.addEventListener('DOMContentLoaded', function () {
-                const chart = Highcharts.chart('example', {
-                    chart: {
-                        type: 'bar'
-                    },
-                    title: {
-                        text: 'Activity'
-                    },
-                    xAxis: {
-                        categories: ['June', 'July', 'August']
-                    },
-                    yAxis: {
-                        title: {
-                            text: 'Millions'
-                        }
-                    },
-                    series: [{
-                        name: 'International',
-                        data: [1, 0, 4]
-                    }, {
-                        name: 'Local',
-                        data: [5, 7, 3]
-                    }]
-                });
+            Highcharts.chart('activity-chart', {
+                chart: { type: 'line' },
+                title: { text: 'Monthly Activity' },
+                xAxis: { categories: @json($activityChart['categories']) },
+                yAxis: {
+                    title: { text: 'Millions' },
+                    min: 0,
+                    labels: { format: '{value}M' }
+                },
+                tooltip: { valueSuffix: ' M requests', valueDecimals: 1 },
+                plotOptions: {
+                    line: {
+                        marker: { enabled: true },
+                        dataLabels: { enabled: true, format: '{y}M' }
+                    }
+                },
+                series: [{
+                    name: 'Views',
+                    data: @json($activityChart['views'])
+                }]
             });
             Highcharts.chart('performance-chart', {
                 chart: { type: 'pie' },
