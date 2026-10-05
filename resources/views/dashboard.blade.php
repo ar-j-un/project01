@@ -98,24 +98,7 @@
                 <header class="card-header d-flex align-items-center justify-content-between">
                     <h2 class="h4 card-header-title">Performance</h2>
                 </header>
-                <div class="card-body">
-                    <div class="mx-auto mb-6" style="max-width: 240px; max-height: 240px;">
-                        <canvas class="js-doughnut-chart" width="240" height="240"></canvas>
-                    </div>
-                    <ul class="list-inline d-flex align-items-center justify-content-center text-center mb-0">
-                        <li class="list-inline-item px-5 mr-0">
-                            <div class="h2 font-weight-normal text-primary mb-1">45%</div>
-                            <div class="text-muted">Total Sales</div>
-                        </li>
-                        <li class="list-inline-item px-5 mr-0">
-                            <div class="h2 font-weight-normal text-info mb-1">15%</div>
-                            <div class="text-muted">New Customers</div>
-                        </li>
-                        <li class="list-inline-item px-5 mr-0">
-                            <div class="h2 font-weight-normal text-success mb-1">15%</div>
-                            <div class="text-muted">Conversion</div>
-                        </li>
-                    </ul>
+                <div class="card-body" id="performance-chart">
                 </div>
             </div>
         </div>
@@ -209,9 +192,6 @@
         </div>
     </div>
     @push('scripts')
-        <script src="{{ asset('vendor/awesome-dashboard/js/charts/area-chart.js') }}"></script>
-        <script src="{{ asset('vendor/awesome-dashboard/js/charts/area-chart-small.js') }}"></script>
-        <script src="{{ asset('vendor/awesome-dashboard/js/charts/doughnut-chart.js') }}"></script>
         <script>
             Highcharts.chart('revenue-profit-chart', {
                 chart: { type: 'column' },
@@ -251,6 +231,32 @@
                         data: [5, 7, 3]
                     }]
                 });
+            });
+            Highcharts.chart('performance-chart', {
+                chart: { type: 'pie' },
+                title: {
+                    text: '{{ $overall }}%<br>of target',
+                    align: 'center',
+                    verticalAlign: 'middle',
+                    y: 0
+                },
+                legend: { enabled: false },
+                tooltip: {
+                    pointFormat: '<span style="color:{point.color}">●</span> {point.name}<br/><b>{point.display}</b> ({point.y}% of target)'
+                },
+                plotOptions: {
+                    pie: {
+                        innerSize: '75%',
+                        dataLabels: {
+                            enabled: true,
+                            format: '{point.name}<br>{point.display}'
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Performance',
+                    data: @json($performance)
+                }]
             });
         </script>
     @endpush
