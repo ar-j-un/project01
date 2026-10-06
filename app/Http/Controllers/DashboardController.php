@@ -54,6 +54,9 @@ class DashboardController extends Controller
             'categories' => $buckets->map(fn ($b) => Carbon::createFromTimestampMs($b['key'], $tz)->format('M Y'))->values(),
             'revenue'    => $buckets->map(fn ($b) => (float) $b['revenue']['value'])->values(),
             'profit' => $buckets->map(fn ($b) => round($b['revenue']['value'] - $b['cost']['value'], 2))->values(),
+            'overall'     => 75,
+            'performance' => [['name' => 'Total Sales',    'y' => 65], ['name' => 'New Customers',  'y' => 35], ['name' => 'Conversion',     'y' => 15]],
+            'activityChart' => $this->activityChart(),
         ]);
     }
 
@@ -85,5 +88,12 @@ class DashboardController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    private function activityChart(){
+        return [
+            'categories' => ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'july', 'aug'],
+            'views'=> [2,4,3,5,1,6,7,8],
+        ];
     }
 }
