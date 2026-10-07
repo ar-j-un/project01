@@ -6,4 +6,5 @@ return [
     'password'    => env('ELASTICSEARCH_PASSWORD'),
     'ca_bundle'   => storage_path('certs/http_ca.crt'),
     'sales_index' => 'sales',
+    'traffic_index' => 'traffic_hourly',
 ];
