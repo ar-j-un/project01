@@ -9,7 +9,7 @@ use Elastic\Elasticsearch\Client;
 
 class DashboardController extends Controller
 {
-    public function index(Client $client)
+    public function index(Request $request, Client $client)
     {
         $tz    = config('app.timezone');
         $start = now()->startOfYear();
@@ -54,9 +54,9 @@ class DashboardController extends Controller
             'categories' => $buckets->map(fn ($b) => Carbon::createFromTimestampMs($b['key'], $tz)->format('M Y'))->values(),
             'revenue'    => $buckets->map(fn ($b) => (float) $b['revenue']['value'])->values(),
             'profit' => $buckets->map(fn ($b) => round($b['revenue']['value'] - $b['cost']['value'], 2))->values(),
+            'trafficChart' => $this->trafficChart($client, $request),
             'overall'     => 75,
             'performance' => [['name' => 'Total Sales',    'y' => 65], ['name' => 'New Customers',  'y' => 35], ['name' => 'Conversion',     'y' => 15]],
-            'activityChart' => $this->activityChart(),
         ]);
     }
 
@@ -90,10 +90,68 @@ class DashboardController extends Controller
         //
     }
 
-    private function activityChart(){
+    private function trafficChart(Client $client, Request $request): array
+    {
+        $request->validate([
+            'range' => ['nullable', 'in:1,2,3,7'],
+            'from'  => ['nullable', 'date'],
+            'to'    => ['nullable', 'date', 'after_or_equal:from'],
+        ]);
+
+        $tz = config('app.timezone');
+
+        if ($request->filled('from') && $request->filled('to')) {
+            $start = Carbon::parse($request->input('from'), $tz)->startOfDay();
+            $end   = Carbon::parse($request->input('to'), $tz)->endOfDay();
+            $end   = $end->isFuture() ? now() : $end;
+        } else {
+            $start = now()->subDays((int) $request->input('range', 3))->startOfHour();
+            $end   = now();
+        }
+
+        $response = $client->search([
+            'index' => config('elasticsearch.traffic_index'),
+            'body'  => [
+                'size'  => 0,
+                'query' => [
+                    'range' => [
+                        'timestamp' => [
+                            'gte' => $start->toIso8601String(),
+                            'lte' => $end->toIso8601String(),
+                        ],
+                    ],
+                ],
+                'aggs' => [
+                    'per_hour' => [
+                        'date_histogram' => [
+                            'field'           => 'timestamp',
+                            'fixed_interval'  => '1h',
+                            'time_zone'       => $tz,
+                            'min_doc_count'   => 0,
+                            'extended_bounds' => [
+                                'min' => $start->getTimestamp() * 1000,
+                                'max' => $end->getTimestamp() * 1000,
+                            ],
+                        ],
+                        'aggs' => [
+                            'visits' => ['sum' => ['field' => 'visits']],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $buckets = collect($response->asArray()['aggregations']['per_hour']['buckets']);
+
         return [
-            'categories' => ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'july', 'aug'],
-            'views'=> [2,4,3,5,1,6,7,8],
+            'trafficCategories' => $buckets
+                ->map(fn ($b) => Carbon::createFromTimestampMs($b['key'], $tz)->format('d M, H:00'))
+                ->values(),
+            'trafficVisits' => $buckets
+                ->map(fn ($b) => $b['doc_count'] > 0 ? (int) $b['visits']['value'] : null)
+                ->values(),
+            'trafficHasData' => $buckets->sum('doc_count') > 0,
+            'trafficPeriod' => $start->format('d M Y').' - '.$end->format('d M Y'),
         ];
     }
 }
