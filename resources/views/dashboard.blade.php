@@ -66,7 +66,9 @@
             </div>
         </div>
     </div>
-    <div id="activity-chart" style="width:100%; height:400px;"></div>
+
+    <div id="traffic-chart" style="width:100%; height:400px;"></div>
+
     <div class="row">
         <div class="col-md-6 mb-5">
             <div class="card h-100">
@@ -191,26 +193,36 @@
                     { name: 'Profit', data: @json($profit) }
                 ]
             });
-            Highcharts.chart('activity-chart', {
+            Highcharts.chart('traffic-chart', {
                 chart: { type: 'line' },
-                title: { text: 'Monthly Activity' },
-                xAxis: { categories: @json($activityChart['categories']) },
+                title: { text: 'TRAFFIC TREND' },
+                subtitle: { text: @json($trafficChart['trafficPeriod']) },
+                xAxis: {
+                    title: { text: 'Date Time' },
+                    categories: @json($trafficChart['trafficCategories']),
+                    tickInterval: 1,
+                    labels: {
+                        step: 1,
+                        rotation: -45,
+                        autoRotation: false,
+                        allowOverlap: true,
+                        style: { fontSize: '10px' },
+                        formatter: function () {
+                            const [date, time] = this.axis.categories[this.pos].split(', ');
+                            const previous = this.pos > 0
+                                ? this.axis.categories[this.pos - 1].split(', ')[0]
+                                : null;
+
+                            return date !== previous ? `${date}, ${time}` : time;
+                        },
+                    },
+                },
                 yAxis: {
-                    title: { text: 'Millions' },
+                    title: { text: 'Count' },
                     min: 0,
-                    labels: { format: '{value}M' }
+                    tickInterval: 2,
                 },
-                tooltip: { valueSuffix: ' M requests', valueDecimals: 1 },
-                plotOptions: {
-                    line: {
-                        marker: { enabled: true },
-                        dataLabels: { enabled: true, format: '{y}M' }
-                    }
-                },
-                series: [{
-                    name: 'Views',
-                    data: @json($activityChart['views'])
-                }]
+                series: [{ name: 'Count', data: @json($trafficChart['trafficVisits']) }],
             });
             Highcharts.chart('performance-chart', {
                 chart: { type: 'pie' },
