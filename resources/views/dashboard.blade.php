@@ -2,20 +2,13 @@
     <x-slot name="title">Dashboard</x-slot>
 
     <div class="row">
-        <div class="col-sm-6 col-xl-3 mb-5">
+        <div class="col-sm-6 col-xl-2 mb-5">
             <div class="card">
                 <div class="card-body">
                     <div class="media align-items-center py-2">
                         <div class="media-body">
-                            <h5 class="h5 text-muted mb-2">Total Budget</h5>
-                            <span class="h2 font-weight-normal mb-0">$162,400</span>
-                        </div>
-                        <div class="text-right ml-2" style="max-width: 70px;">
-                            <div class="mb-2">
-                                <canvas class="js-area-chart-small" width="100" height="20"
-                                    data-extend='[{"data": [20, 0, 40, 40, 100, 60, 100, 90, 80], "borderColor": "#444bf8"}]'></canvas>
-                            </div>
-                            <span class="text-success">+5.2% <span class="ti-arrow-up"></span></span>
+                            <h5 class="h5 text-muted mb-2">TOTAL REQUESTS</h5>
+                            <span class="h2 font-weight-normal mb-0">27</span>
                         </div>
                     </div>
                 </div>
@@ -27,15 +20,21 @@
                 <div class="card-body">
                     <div class="media align-items-center py-2">
                         <div class="media-body">
-                            <h5 class="h5 text-muted mb-2">Total sales</h5>
-                            <span class="h2 font-weight-normal mb-0">$48,800</span>
+                            <h5 class="h5 text-muted mb-2">TOTAL SECURITY EVENTS</h5>
+                            <span class="h2 font-weight-normal mb-0">0</span>
                         </div>
-                        <div class="text-right ml-2" style="max-width: 70px;">
-                            <div class="mb-2">
-                                <canvas class="js-area-chart-small" width="100" height="20"
-                                    data-extend='[{"data": [90, 80, 100, 40, 40, 0, 20, 10, 30], "borderColor": "#2cd2f6"}]'></canvas>
-                            </div>
-                            <span class="text-success">+9.0% <span class="ti-arrow-up"></span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2 mb-5">
+            <div class="card">
+                <div class="card-body">
+                    <div class="media align-items-center py-2">
+                        <div class="media-body">
+                            <h5 class="h5 text-muted mb-2">ATTACKS BLOCKED</h5>
+                            <span class="h2 font-weight-normal mb-0">0</span>
                         </div>
                     </div>
                 </div>
@@ -47,35 +46,20 @@
                 <div class="card-body">
                     <div class="media align-items-center py-2">
                         <div class="media-body">
-                            <h5 class="h5 text-muted mb-2">New clients</h5>
-                            <span class="h2 font-weight-normal mb-0">484</span>
-                        </div>
-                        <div class="text-right ml-2" style="max-width: 70px;">
-                            <div class="mb-2">
-                                <canvas class="js-area-chart-small" width="100" height="20"
-                                    data-extend='[{"data": [80, 100, 50, 50, 0, 60, 60, 100, 80], "borderColor": "#f12559"}]'></canvas>
-                            </div>
-                            <span class="text-danger">-4.2% <span class="ti-arrow-down"></span></span>
+                            <h5 class="h5 text-muted mb-2">EVENTS MONITORED</h5>
+                            <span class="h2 font-weight-normal mb-0">0</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-sm-6 col-xl-3 mb-5">
+        <div class="col-sm-6 col-xl-2 mb-5">
             <div class="card">
                 <div class="card-body">
                     <div class="media align-items-center py-2">
                         <div class="media-body">
-                            <h5 class="h5 text-muted mb-2">Total Income</h5>
-                            <span class="h2 font-weight-normal mb-0">$36,900</span>
-                        </div>
-                        <div class="text-right ml-2" style="max-width: 70px;">
-                            <div class="mb-2">
-                                <canvas class="js-area-chart-small" width="100" height="20"
-                                    data-extend='[{"data": [80, 100, 50, 50, 0, 60, 60, 100, 80], "borderColor": "#f1be25"}]'></canvas>
-                            </div>
-                            <span class="text-success">+6.2% <span class="ti-arrow-up"></span></span>
+                            <h5 class="h5 text-muted mb-2">RULES TRIGGERED</h5>
+                            <span class="h2 font-weight-normal mb-0">0</span>
                         </div>
                     </div>
                 </div>
