@@ -68,7 +68,17 @@
     </div>
 
     <div id="traffic-chart" style="width:100%; height:400px;"></div>
-    <div id="top-sources-chart" style="width:100%; height:400px;" class="col-sm-12 col-xl-6 mt-4"></div>
+
+    <div class="col-sm-12 col-xl-6 mb-5 mt-4">
+        <div class="position-relative">
+            <div id="top-sources-toggle" class="btn-group btn-group-sm position-absolute"
+                style="top: 10px; right: 10px; z-index: 2;" role="group">
+                <button type="button" class="btn btn-primary" data-view="countries">Country</button>
+                <button type="button" class="btn btn-outline-primary" data-view="ips">IP Address</button>
+            </div>
+            <div id="top-sources-chart" style="width:100%; height:400px;"></div>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-md-6 mb-5">
@@ -251,10 +261,25 @@
                     data: @json($performance)
                 }]
             });
-            Highcharts.chart('top-sources-chart', {
+            const topSourceViews = {
+                countries: {
+                    axisTitle: 'Country',
+                    categories: @json($topCountries['categories']),
+                    data: @json($topCountries['data']),
+                },
+                ips: {
+                    axisTitle: 'IP Address',
+                    categories: @json($topIps['categories']),
+                    data: @json($topIps['data']),
+                },
+            };
+            const topSourcesChart = Highcharts.chart('top-sources-chart', {
                 chart: { type: 'bar' },
                 title: { text: 'TOP REQUEST SOURCES', align: 'left' },
-                xAxis: { categories: @json($topCountries['categories']), title: { text: 'Country' } },
+                xAxis: {
+                    categories: topSourceViews.countries.categories.slice(),
+                    title: { text: topSourceViews.countries.axisTitle }
+                },
                 yAxis: { min: 0, allowDecimals: false, title: { text: 'Count' } },
                 tooltip: { valueSuffix: ' counts' },
                 legend: { enabled: false },
@@ -264,7 +289,24 @@
                         borderRadius: { radius: 12, scope: 'point', where: 'end' }
                     }
                 },
-                series: [{ name: 'Count', data: @json($topCountries['data']) }]
+                series: [{ name: 'Count', data: topSourceViews.countries.data.slice() }]
+            });
+            document.querySelectorAll('#top-sources-toggle button').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const view = topSourceViews[btn.dataset.view];
+
+                    topSourcesChart.xAxis[0].update({
+                        categories: view.categories.slice(),
+                        title: { text: view.axisTitle }
+                    }, false);
+                    topSourcesChart.series[0].setData(view.data.slice(), false);
+                    topSourcesChart.redraw();
+
+                    document.querySelectorAll('#top-sources-toggle button').forEach((b) => {
+                        b.classList.toggle('btn-primary', b === btn);
+                        b.classList.toggle('btn-outline-primary', b !== btn);
+                    });
+                });
             });
         </script>
     @endpush
