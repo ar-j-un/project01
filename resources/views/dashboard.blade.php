@@ -68,6 +68,7 @@
     </div>
 
     <div id="traffic-chart" style="width:100%; height:400px;"></div>
+    <div id="top-sources-chart" style="width:100%; height:400px;" class="col-sm-12 col-xl-6 mt-4"></div>
 
     <div class="row">
         <div class="col-md-6 mb-5">
@@ -249,6 +250,21 @@
                     name: 'Performance',
                     data: @json($performance)
                 }]
+            });
+            Highcharts.chart('top-sources-chart', {
+                chart: { type: 'bar' },
+                title: { text: 'TOP REQUEST SOURCES', align: 'left' },
+                xAxis: { categories: @json($topCountries['categories']), title: { text: 'Country' } },
+                yAxis: { min: 0, allowDecimals: false, title: { text: 'Count' } },
+                tooltip: { valueSuffix: ' counts' },
+                legend: { enabled: false },
+                credits: { enabled: false },
+                plotOptions: {
+                    bar: {
+                        borderRadius: { radius: 12, scope: 'point', where: 'end' }
+                    }
+                },
+                series: [{ name: 'Count', data: @json($topCountries['data']) }]
             });
         </script>
     @endpush
