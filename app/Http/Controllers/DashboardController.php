@@ -55,7 +55,8 @@ class DashboardController extends Controller
             'revenue'    => $buckets->map(fn ($b) => (float) $b['revenue']['value'])->values(),
             'profit' => $buckets->map(fn ($b) => round($b['revenue']['value'] - $b['cost']['value'], 2))->values(),
             'trafficChart' => $this->trafficChart($client, $request),
-            'topCountries' => $this->getTopCountriesByRequests($client),
+            'topCountries' => $this->getTopRequests($client, 'country_index', 'country'),
+            'topIps' => $this->getTopRequests($client, 'ip_index', 'ip'),
             'overall'     => 75,
             'performance' => [['name' => 'Total Sales',    'y' => 65], ['name' => 'New Customers',  'y' => 35], ['name' => 'Conversion',     'y' => 15]],
         ]);
@@ -155,18 +156,18 @@ class DashboardController extends Controller
             'trafficPeriod' => $start->format('d M Y').' - '.$end->format('d M Y'),
         ];
     }
-    private function getTopCountriesByRequests(Client $client, int $limit = 3): array
+    private function getTopRequests(Client $client, string $indexKey, string $field, int $limit = 3): array
     {
         $response = $client->search([
-            'index' => config('elasticsearch.country_index'),
+            'index' => config("elasticsearch.{$indexKey}"),
             'body'  => [
                 'size' => 0,
                 'aggs' => [
-                    'top_countries' => [
+                    'top_items' => [
                         'terms' => [
-                            'field' => 'country',
+                            'field' => $field,
                             'size'  => $limit,
-                            'order' => ['total_requests' => 'desc'],
+                            'order' => [['peak_requests' => 'desc'], ['_key' => 'asc']],
                         ],
                         'aggs' => [
                             'peak_requests' => ['max' => ['field' => 'requests']],
@@ -177,7 +178,7 @@ class DashboardController extends Controller
             ],
         ]);
 
-        $buckets = $response['aggregations']['top_countries']['buckets'] ?? [];
+        $buckets = $response['aggregations']['top_items']['buckets'] ?? [];
 
         return [
             'categories' => array_column($buckets, 'key'),
