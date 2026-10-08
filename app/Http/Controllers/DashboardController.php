@@ -55,6 +55,7 @@ class DashboardController extends Controller
             'revenue'    => $buckets->map(fn ($b) => (float) $b['revenue']['value'])->values(),
             'profit' => $buckets->map(fn ($b) => round($b['revenue']['value'] - $b['cost']['value'], 2))->values(),
             'trafficChart' => $this->trafficChart($client, $request),
+            'topCountries' => $this->getTopCountriesByRequests($client),
             'overall'     => 75,
             'performance' => [['name' => 'Total Sales',    'y' => 65], ['name' => 'New Customers',  'y' => 35], ['name' => 'Conversion',     'y' => 15]],
         ]);
@@ -152,6 +153,38 @@ class DashboardController extends Controller
                 ->values(),
             'trafficHasData' => $buckets->sum('doc_count') > 0,
             'trafficPeriod' => $start->format('d M Y').' - '.$end->format('d M Y'),
+        ];
+    }
+    private function getTopCountriesByRequests(Client $client, int $limit = 3): array
+    {
+        $response = $client->search([
+            'index' => config('elasticsearch.country_index'),
+            'body'  => [
+                'size' => 0,
+                'aggs' => [
+                    'top_countries' => [
+                        'terms' => [
+                            'field' => 'country',
+                            'size'  => $limit,
+                            'order' => ['total_requests' => 'desc'],
+                        ],
+                        'aggs' => [
+                            'peak_requests' => ['max' => ['field' => 'requests']],
+                            'total_requests' => ['sum' => ['field' => 'requests']],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $buckets = $response['aggregations']['top_countries']['buckets'] ?? [];
+
+        return [
+            'categories' => array_column($buckets, 'key'),
+            'data'       => array_map(
+                fn ($b) => (int) $b['peak_requests']['value'],
+                $buckets
+            ),
         ];
     }
 }
