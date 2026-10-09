@@ -57,6 +57,7 @@ class DashboardController extends Controller
             'trafficChart' => $this->trafficChart($client, $request),
             'topCountries' => $this->getTopRequests($client, 'country_index', 'country'),
             'topIps' => $this->getTopRequests($client, 'ip_index', 'ip'),
+            'stats' => $this->getStatCards($client),
             'overall'     => 75,
             'performance' => [['name' => 'Total Sales',    'y' => 65], ['name' => 'New Customers',  'y' => 35], ['name' => 'Conversion',     'y' => 15]],
         ]);
@@ -187,5 +188,46 @@ class DashboardController extends Controller
                 $buckets
             ),
         ];
+    }
+
+    private function getStatCards(Client $client): array
+    {
+        $empty = [
+            'total_requests'    => 0,
+            'security_events'   => 0,
+            'attacks_blocked'   => 0,
+            'events_monitored'  => 0,
+            'rules_triggered'   => 0,
+        ];
+
+        try {
+            $response = $client->search([
+                'index' => config('elasticsearch.security_events_es_index'),
+                'body'  => [
+                    'size'             => 0,
+                    'track_total_hits' => true,
+                    'aggs'             => [
+                        'security_events'  => ['filter' => ['term' => ['security_event' => true]]],
+                        'attacks_blocked'  => ['filter' => ['term' => ['action' => 'blocked']]],
+                        'events_monitored' => ['filter' => ['term' => ['action' => 'monitored']]],
+                        'rules_triggered'  => ['cardinality' => ['field' => 'rule_id']],
+                    ],
+                ],
+            ]);
+
+            $data = is_array($response) ? $response : $response->asArray();
+            $aggs = $data['aggregations'];
+
+            return [
+                'total_requests'   => $data['hits']['total']['value'],
+                'security_events'  => $aggs['security_events']['doc_count'],
+                'attacks_blocked'  => $aggs['attacks_blocked']['doc_count'],
+                'events_monitored' => $aggs['events_monitored']['doc_count'],
+                'rules_triggered'  => $aggs['rules_triggered']['value'],
+            ];
+        } catch (\Throwable $err) {
+            report($err);
+            return $empty;
+        }
     }
 }
