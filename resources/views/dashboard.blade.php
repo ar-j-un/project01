@@ -8,7 +8,8 @@
                     <div class="media align-items-center py-2">
                         <div class="media-body">
                             <h5 class="h5 text-muted mb-2">TOTAL REQUESTS</h5>
-                            <span class="h2 font-weight-normal mb-0">27</span>
+                            <span
+                                class="h2 font-weight-normal mb-0">{{ number_format($stats['total_requests']) }}</span>
                         </div>
                     </div>
                 </div>
@@ -21,7 +22,8 @@
                     <div class="media align-items-center py-2">
                         <div class="media-body">
                             <h5 class="h5 text-muted mb-2">TOTAL SECURITY EVENTS</h5>
-                            <span class="h2 font-weight-normal mb-0">0</span>
+                            <span
+                                class="h2 font-weight-normal mb-0">{{ number_format($stats['security_events']) }}</span>
                         </div>
                     </div>
                 </div>
@@ -34,7 +36,8 @@
                     <div class="media align-items-center py-2">
                         <div class="media-body">
                             <h5 class="h5 text-muted mb-2">ATTACKS BLOCKED</h5>
-                            <span class="h2 font-weight-normal mb-0">0</span>
+                            <span
+                                class="h2 font-weight-normal mb-0">{{ number_format($stats['attacks_blocked']) }}</span>
                         </div>
                     </div>
                 </div>
@@ -47,7 +50,8 @@
                     <div class="media align-items-center py-2">
                         <div class="media-body">
                             <h5 class="h5 text-muted mb-2">EVENTS MONITORED</h5>
-                            <span class="h2 font-weight-normal mb-0">0</span>
+                            <span
+                                class="h2 font-weight-normal mb-0">{{ number_format($stats['events_monitored']) }}</span>
                         </div>
                     </div>
                 </div>
@@ -59,7 +63,8 @@
                     <div class="media align-items-center py-2">
                         <div class="media-body">
                             <h5 class="h5 text-muted mb-2">RULES TRIGGERED</h5>
-                            <span class="h2 font-weight-normal mb-0">0</span>
+                            <span
+                                class="h2 font-weight-normal mb-0">{{ number_format($stats['rules_triggered']) }}</span>
                         </div>
                     </div>
                 </div>
