@@ -8,5 +8,6 @@ return [
     'sales_index' => 'sales',
     'traffic_index' => 'traffic_hourly',
     'country_index' => 'country_requests',
-    'ip_index' => 'ip_requests'
+    'ip_index' => 'ip_requests',
+    'security_events_es_index' => 'security_events',
 ];
