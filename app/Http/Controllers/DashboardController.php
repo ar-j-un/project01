@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TimeRangeRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -9,8 +10,10 @@ use Elastic\Elasticsearch\Client;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request, Client $client)
+    public function index(TimeRangeRequest $request, Client $client)
     {
+        [$rangeStart, $rangeEnd] = $request->period();
+
         $tz    = config('app.timezone');
         $start = now()->startOfYear();
         $end   = now()->endOfYear();
@@ -54,10 +57,11 @@ class DashboardController extends Controller
             'categories' => $buckets->map(fn ($b) => Carbon::createFromTimestampMs($b['key'], $tz)->format('M Y'))->values(),
             'revenue'    => $buckets->map(fn ($b) => (float) $b['revenue']['value'])->values(),
             'profit' => $buckets->map(fn ($b) => round($b['revenue']['value'] - $b['cost']['value'], 2))->values(),
-            'trafficChart' => $this->trafficChart($client, $request),
-            'topCountries' => $this->getTopRequests($client, 'country_index', 'country'),
-            'topIps' => $this->getTopRequests($client, 'ip_index', 'ip'),
-            'stats' => $this->getStatCards($client),
+            'trafficChart' => $this->trafficChart($client, $rangeStart, $rangeEnd),
+            'topCountries' => $this->getTopRequests($client, 'country_index', 'country', $rangeStart, $rangeEnd),
+            'topIps' => $this->getTopRequests($client, 'ip_index', 'ip', $rangeStart, $rangeEnd),
+            'stats' => $this->getStatCards($client, $rangeStart, $rangeEnd),
+            'filters'      => $request->filters(),
             'overall'     => 75,
             'performance' => [['name' => 'Total Sales',    'y' => 65], ['name' => 'New Customers',  'y' => 35], ['name' => 'Conversion',     'y' => 15]],
         ]);
@@ -93,24 +97,10 @@ class DashboardController extends Controller
         //
     }
 
-    private function trafficChart(Client $client, Request $request): array
+    private function trafficChart(Client $client, Carbon $start, Carbon $end): array
     {
-        $request->validate([
-            'range' => ['nullable', 'in:1,2,3,7'],
-            'from'  => ['nullable', 'date'],
-            'to'    => ['nullable', 'date', 'after_or_equal:from'],
-        ]);
-
         $tz = config('app.timezone');
-
-        if ($request->filled('from') && $request->filled('to')) {
-            $start = Carbon::parse($request->input('from'), $tz)->startOfDay();
-            $end   = Carbon::parse($request->input('to'), $tz)->endOfDay();
-            $end   = $end->isFuture() ? now() : $end;
-        } else {
-            $start = now()->subDays((int) $request->input('range', 3))->startOfHour();
-            $end   = now();
-        }
+        $hourly = $start->diffInHours($end) <= 72;
 
         $response = $client->search([
             'index' => config('elasticsearch.traffic_index'),
@@ -125,17 +115,19 @@ class DashboardController extends Controller
                     ],
                 ],
                 'aggs' => [
-                    'per_hour' => [
-                        'date_histogram' => [
-                            'field'           => 'timestamp',
-                            'fixed_interval'  => '1h',
-                            'time_zone'       => $tz,
-                            'min_doc_count'   => 0,
-                            'extended_bounds' => [
-                                'min' => $start->getTimestamp() * 1000,
-                                'max' => $end->getTimestamp() * 1000,
+                    'per_bucket' => [
+                        'date_histogram' => array_merge(
+                            [
+                                'field'           => 'timestamp',
+                                'time_zone'       => $tz,
+                                'min_doc_count'   => 0,
+                                'extended_bounds' => [
+                                    'min' => $start->getTimestamp() * 1000,
+                                    'max' => $end->getTimestamp() * 1000,
+                                ],
                             ],
-                        ],
+                            $hourly ? ['fixed_interval' => '1h'] : ['calendar_interval' => 'day']
+                        ),
                         'aggs' => [
                             'visits' => ['sum' => ['field' => 'visits']],
                         ],
@@ -144,11 +136,12 @@ class DashboardController extends Controller
             ],
         ]);
 
-        $buckets = collect($response->asArray()['aggregations']['per_hour']['buckets']);
+        $buckets = collect($response->asArray()['aggregations']['per_bucket']['buckets']);
+        $format  = $hourly ? 'd M, H:00' : 'd M';
 
         return [
             'trafficCategories' => $buckets
-                ->map(fn ($b) => Carbon::createFromTimestampMs($b['key'], $tz)->format('d M, H:00'))
+                ->map(fn ($b) => Carbon::createFromTimestampMs($b['key'], $tz)->format($format))
                 ->values(),
             'trafficVisits' => $buckets
                 ->map(fn ($b) => $b['doc_count'] > 0 ? (int) $b['visits']['value'] : null)
@@ -157,12 +150,20 @@ class DashboardController extends Controller
             'trafficPeriod' => $start->format('d M Y').' - '.$end->format('d M Y'),
         ];
     }
-    private function getTopRequests(Client $client, string $indexKey, string $field, int $limit = 3): array
+    private function getTopRequests(Client $client, string $indexKey, string $field, Carbon $start, Carbon $end, int $limit = 3): array
     {
         $response = $client->search([
             'index' => config("elasticsearch.{$indexKey}"),
             'body'  => [
                 'size' => 0,
+                'query' => [
+                    'range' => [
+                        'timestamp' => [
+                            'gte' => $start->toIso8601String(),
+                            'lte' => $end->toIso8601String(),
+                        ],
+                    ],
+                ],
                 'aggs' => [
                     'top_items' => [
                         'terms' => [
@@ -183,14 +184,11 @@ class DashboardController extends Controller
 
         return [
             'categories' => array_column($buckets, 'key'),
-            'data'       => array_map(
-                fn ($b) => (int) $b['peak_requests']['value'],
-                $buckets
-            ),
+            'data'       => array_map(fn ($b) => (int) $b['peak_requests']['value'],$buckets),
         ];
     }
 
-    private function getStatCards(Client $client): array
+    private function getStatCards(Client $client, Carbon $start, Carbon $end): array
     {
         $empty = [
             'total_requests'    => 0,
@@ -206,6 +204,14 @@ class DashboardController extends Controller
                 'body'  => [
                     'size'             => 0,
                     'track_total_hits' => true,
+                    'query' => [
+                        'range' => [
+                            'timestamp' => [
+                                'gte' => $start->toIso8601String(),
+                                'lte' => $end->toIso8601String(),
+                            ],
+                        ],
+                    ],
                     'aggs'             => [
                         'security_events'  => ['filter' => ['term' => ['security_event' => true]]],
                         'attacks_blocked'  => ['filter' => ['term' => ['action' => 'blocked']]],
