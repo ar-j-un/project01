@@ -72,6 +72,31 @@
         </div>
     </div>
 
+    @php $custom = $filters['range'] === 'custom'; @endphp
+    <form method="GET" action="{{ url()->current() }}" id="range-form" class="form-inline mb-4">
+        <label for="range" class="mr-2 text-muted">Time range</label>
+        <select name="range" id="range" class="form-control form-control-sm mr-3">
+            @foreach ([1 => 'Last 24 hours', 2 => 'Last 2 days', 3 => 'Last 3 days', 7 => 'Last 7 days', 30 => 'Last 30 days'] as $value => $label)
+                <option value="{{ $value }}" @selected(!$custom && (string) $filters['range'] === (string) $value)>
+                    {{ $label }}
+                </option>
+            @endforeach
+            <option value="custom" @selected($custom)>Custom</option>
+        </select>
+
+        <div id="custom-range" class="form-inline {{ $custom ? '' : 'd-none' }}">
+            <input type="date" name="from" value="{{ $filters['from'] }}" max="{{ now()->toDateString() }}"
+                class="form-control form-control-sm mr-2" @disabled(!$custom)>
+            <input type="date" name="to" value="{{ $filters['to'] }}" max="{{ now()->toDateString() }}"
+                class="form-control form-control-sm mr-2" @disabled(!$custom)>
+            <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+        </div>
+    </form>
+    @error('from')
+    <div class="text-danger small mb-3">{{ $message }}</div> @enderror
+    @error('to')
+    <div class="text-danger small mb-3">{{ $message }}</div> @enderror
+
     <div id="traffic-chart" style="width:100%; height:400px;"></div>
 
     <div class="col-sm-12 col-xl-6 mb-5 mt-4">
@@ -224,7 +249,10 @@
                         allowOverlap: true,
                         style: { fontSize: '10px' },
                         formatter: function () {
-                            const [date, time] = this.axis.categories[this.pos].split(', ');
+                            const label = this.axis.categories[this.pos];
+                            if (!label.includes(', ')) return label;
+
+                            const [date, time] = label.split(', ');
                             const previous = this.pos > 0
                                 ? this.axis.categories[this.pos - 1].split(', ')[0]
                                 : null;
@@ -312,6 +340,18 @@
                         b.classList.toggle('btn-outline-primary', b !== btn);
                     });
                 });
+            });
+            const rangeSelect = document.getElementById('range');
+            const customRange = document.getElementById('custom-range');
+
+            rangeSelect.addEventListener('change', () => {
+                const isCustom = rangeSelect.value === 'custom';
+                customRange.classList.toggle('d-none', !isCustom);
+                customRange.querySelectorAll('input').forEach((i) => i.disabled = !isCustom);
+
+                if (!isCustom) {
+                    document.getElementById('range-form').submit();
+                }
             });
         </script>
     @endpush
